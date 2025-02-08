@@ -6,11 +6,37 @@ adding a new "isDone" field as a boolean. The authorization rule below
 specifies that any user authenticated via an API key can "create", "read",
 "update", and "delete" any "Todo" records.
 =========================================================================*/
+// const schema = a.schema({
+//   Todo: a
+//     .model({
+//       content: a.string(),
+//     }).authorization(allow => [allow.owner()]),
+// });
+
+// export type Schema = ClientSchema<typeof schema>;
+
+// export const data = defineData({
+//   schema,
+//   authorizationModes: {
+//     defaultAuthorizationMode: "userPool",
+//     // API Key is used for a.allow.public() rules
+//     apiKeyAuthorizationMode: {
+//       expiresInDays: 30,
+//     },
+//   },
+// });
+
 const schema = a.schema({
-  Todo: a
+  ScheduledMessage: a
     .model({
-      content: a.string(),
-    }).authorization(allow => [allow.owner()]),
+      // uniqueId: a.id(),
+      userEmail: a.string(),
+      scheduleDate: a.date(),
+      message: a.string(),
+      recipients: a.string().array(), // Array of recipient emails
+      // fileKeys: a.string().array(), // Store S3 file keys as an array of strings
+    })
+    .authorization((allow) => [allow.owner()]), // Ensuring only the owner can access their messages
 });
 
 export type Schema = ClientSchema<typeof schema>;
@@ -19,12 +45,12 @@ export const data = defineData({
   schema,
   authorizationModes: {
     defaultAuthorizationMode: "userPool",
-    // API Key is used for a.allow.public() rules
     apiKeyAuthorizationMode: {
       expiresInDays: 30,
     },
   },
 });
+
 
 /*== STEP 2 ===============================================================
 Go to your frontend source code. From your client-side code, generate a
