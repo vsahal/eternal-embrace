@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { generateClient } from "aws-amplify/data";
 import { useAuthenticator } from "@aws-amplify/ui-react";
@@ -9,12 +9,20 @@ function ScheduleMessageForm() {
   const [userEmail, setUserEmail] = useState<string | undefined>();
   const [scheduleDate, setScheduleDate] = useState("");
   const [message, setMessage] = useState("");
+  // const [messageStatus, setMessageStatus] = useState("SCHEDULED");
   // const [files, setFiles] = useState<File[]>([]);
   const [recipients, setRecipients] = useState("");
   const [dateError, setDateError] = useState(""); // For real-time date validation
   const [emailError, setEmailError] = useState(""); // For real-time email validation
   const navigate = useNavigate();
   const client = generateClient<Schema>();
+
+  useEffect(() => {
+    if (user?.signInDetails?.loginId) {
+      setUserEmail(user.signInDetails.loginId);
+    }
+  }, [user]);
+
 
   // Validates that the selected date is at least one day in the future
   function handleDateChange(event: React.ChangeEvent<HTMLInputElement>) {
@@ -66,13 +74,25 @@ function ScheduleMessageForm() {
   
       // const fileKeys = await Promise.all(fileUploadPromises);
       
-      setUserEmail(user?.signInDetails?.loginId);
+      // TODO This does not work
+      // setUserEmail(user?.signInDetails?.loginId);
+      console.log("sahalv LOGGING the userEmail:", userEmail);
+      console.log("sahalv LOGGING the scheduleDate:", scheduleDate);
+      console.log("sahalv LOGGING the message:", message);
+      console.log("sahalv LOGGING the recipients:", recipients);
+      
+      // setMessageStatus("SCHEDULED");
+
+      if (!userEmail) {
+        throw new Error("User email is required to schedule a message.");
+      }
 
       // Save form data to DynamoDB
       await client.models.ScheduledMessage.create({
         userEmail,
         scheduleDate,
         message,
+        messageStatus: "SCHEDULED",
         recipients: recipients.split(",").map(email => email.trim()), // Convert string to array
         // fileKeys,
       });

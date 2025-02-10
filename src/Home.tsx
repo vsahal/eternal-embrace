@@ -9,6 +9,7 @@ const client = generateClient<Schema>();
 
 function Home() {
   const { user, signOut } = useAuthenticator();
+//   const { data: scheduleMessages } = await client.models.ScheduledMessage.list()
   const [scheduleMessage, setScheduleMessage] = useState<Array<Schema["ScheduledMessage"]["type"]>>([]);
   const navigate = useNavigate();
 
@@ -17,6 +18,15 @@ function Home() {
       next: (data) => setScheduleMessage([...data.items]),
     });
   }, []);
+
+//   async function test() {
+//     // TODO: maybe use this to show the message scheduled? need to show all
+// // the message info
+//     const { data: messageObj } = await client.models.ScheduledMessage.list()
+    
+//     return <ul>{messageObj.map(messageObj =>  <li key={messageObj.id}>{messageObj.userEmail} {"|"} {messageObj.message} {"|"} {messageObj.scheduleDate} {"|"} {messageObj.recipients}</li>)}</ul>
+
+//   }
 
 //   function createScheduledMessage() {
 //     const content = window.prompt("ScheduledMessage content");
@@ -38,8 +48,11 @@ function Home() {
 //     )
 //   }
 
+
+
   return (
     <main>
+        {/* TODO: this works */}
       <h1>{user?.signInDetails?.loginId}'s scheduled messages</h1>
       <div style={{ position: "absolute", top: "10px", right: "10px" }}>
         {/* <button onClick={createTodo}>Schedule new message</button> */}
@@ -50,8 +63,10 @@ function Home() {
       </div>
       <ul>
         {scheduleMessage.map((messageObj) => (
-          <li key={messageObj.id}>{messageObj.userEmail} {"|"} {messageObj.message} {"|"} {messageObj.scheduleDate} {"|"} {messageObj.recipients}</li>
+            // TODO update so that each component has its own block
+          <li >{messageObj.message} {"|"} {messageObj.scheduleDate} {"|"} {messageObj.recipients}</li>
         ))} 
+        {/* <ul>{scheduleMessages.map(scheduleMessage => <li key={scheduleMessage.id}>{scheduleMessage.message}</li>)}</ul> */}
       </ul>
       <div>
         <br />
@@ -63,8 +78,3 @@ function Home() {
 export default Home;
 
 
-// TODO: maybe use this to show the message scheduled? need to show all
-// the message info
-// const { data: todos } = await client.models.Todo.list()
-
-// return <ul>{todos.map(todo => <li key={todo.id}>{todo.content}</li>)}</ul>

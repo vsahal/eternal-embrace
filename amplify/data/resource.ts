@@ -26,18 +26,26 @@ specifies that any user authenticated via an API key can "create", "read",
 //   },
 // });
 
+// TODO make these all required
 const schema = a.schema({
   ScheduledMessage: a
     .model({
-      // uniqueId: a.id(),
-      userEmail: a.string(),
-      scheduleDate: a.date(),
+      id: a.id(),
+      userEmail: a.id().required(),
+      scheduleDate: a.id().required(),
       message: a.string(),
       recipients: a.string().array(), // Array of recipient emails
+      // TODO add file/img code
       // fileKeys: a.string().array(), // Store S3 file keys as an array of strings
+      messageStatus: a.enum(["SCHEDULED", "SENT"])
     })
-    .authorization((allow) => [allow.owner()]), // Ensuring only the owner can access their messages
+    .identifier(["userEmail", "scheduleDate"])
+    // FOR GSI
+    // .secondaryIndexes((index) => [index("scheduleDate")])
+    .authorization((allow) => [allow.owner()]) // Ensuring only the owner can access their messages
 });
+
+
 
 export type Schema = ClientSchema<typeof schema>;
 
