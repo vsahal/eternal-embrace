@@ -58,9 +58,9 @@ return (
     <table style={{ width: "100%", borderCollapse: "collapse", marginTop: "20px" }}>
         <thead>
         <tr style={{ borderBottom: "2px solid black" }}>
-            <th style={{ padding: "10px", textAlign: "left" }}>Message</th>
             <th style={{ padding: "10px", textAlign: "left" }}>Scheduled Date</th>
             <th style={{ padding: "10px", textAlign: "left" }}>Recipients</th>
+            <th style={{ padding: "10px", textAlign: "left" }}>Message</th>
             <th style={{ padding: "10px", textAlign: "left" }}>Actions</th>
         </tr>
         </thead>

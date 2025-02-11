@@ -60,6 +60,11 @@ export const data = defineData({
       expiresInDays: 30,
     },
   },
+  logging: {
+    excludeVerboseContent: false,
+    fieldLogLevel: 'all',
+    retention: '1 month'
+  }
 });
 
 
