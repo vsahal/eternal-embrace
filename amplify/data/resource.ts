@@ -26,19 +26,22 @@ specifies that any user authenticated via an API key can "create", "read",
 //   },
 // });
 
-// TODO make these all required
+// TODO make these all required?? does it make sense?
+// since whenever this schema is updated all entries are deleted.
+// need to make this flexible
 const schema = a.schema({
   ScheduledMessage: a
     .model({
       id: a.id(),
-      userEmail: a.id().required(),
-      scheduleDate: a.id().required(),
-      message: a.string(),
-      recipients: a.string().array(), // Array of recipient emails
+      userEmail: a.email().required(),
+      scheduleDate: a.date().required(),
+      message: a.string().required(),
+      recipients: a.string().array().required(), // Array of recipient emails
       // TODO add file/img code
       // fileKeys: a.string().array(), // Store S3 file keys as an array of strings
       messageStatus: a.enum(["SCHEDULED", "SENT"])
     })
+    // userEmail is primary key and scheduleDate is secondary key
     .identifier(["userEmail", "scheduleDate"])
     // FOR GSI
     // .secondaryIndexes((index) => [index("scheduleDate")])

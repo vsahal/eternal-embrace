@@ -28,3 +28,6 @@ dist-ssr
 .amplify
 amplify_outputs*
 amplifyconfiguration*
+
+# scratch
+scratch.tsx
