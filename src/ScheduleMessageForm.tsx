@@ -163,7 +163,6 @@ function ScheduleMessageForm() {
       <h1>{editingMessage ? "Edit Scheduled Message" : "Schedule a Message"}</h1>
 
       <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
-        <input type="file" onChange={handleChange} />
         {/* Schedule Date Input (Disabled when editing) */}
         <label>
           Schedule Date:
@@ -194,7 +193,7 @@ function ScheduleMessageForm() {
         File Uploader
         <label>
           Upload Attachments:
-          {/* <FileUploader
+          <FileUploader
               acceptedFileTypes={[
                 // you can list file extensions:
                 '.gif',
@@ -206,7 +205,9 @@ function ScheduleMessageForm() {
                 'image/png',
                 'video/*',
               ]}
-            path={({ identityId }) => `uploads/${identityId}/`} 
+            // path={({ identityId }) => `uploads/${userEmail}/${scheduleDate}/`}
+            path={({}) => `uploads/${userEmail}/${scheduleDate}/`}
+            // path=`uploads/${userEmail}/${scheduleDate}/${file.name}`
             autoUpload={false}
             maxFileCount={5}
             isResumable
@@ -222,12 +223,12 @@ function ScheduleMessageForm() {
                 return `${count} images uploaded`;
               },
             }}
-          /> */}
+          />
           {/* <Button onClick={() => ref.current.clearFiles()}>Clear Files</Button> */}
-        <div>
+        {/* <div>
           <input type="file" onChange={handleChange} />
           <button onClick={handleClick}>Upload</button>
-        </div>
+        </div> */}
         </label>
 
         {/* Buttons */}
@@ -245,3 +246,12 @@ function ScheduleMessageForm() {
 }
 
 export default ScheduleMessageForm;
+
+
+// TODO
+// 1. if you click upload it automatically submits the form too - change this 
+// 2. somehow i cannot upload files from live Url, local works fine (permissions issue?)
+  //  - try to open dev tools locally and through live website to compare
+// 3. ensure people can only upload file once a date has been selected
+// 4. update file uploader so youc an add multiple files
+// 5. add feature so when you edit a message the loaded files show up

@@ -5,7 +5,8 @@ export const storage = defineStorage({
   access: (allow) => ({
     // 'uploads/{entity_id}/*': [
     'uploads/*': [
-      allow.entity('identity').to(['read', 'write', 'delete'])
+      // allow.entity('identity').to(['read', 'write', 'delete'])
+      allow.authenticated.to(['read','write', 'delete']),
     ]
   })
 });

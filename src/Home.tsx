@@ -67,11 +67,11 @@ return (
         <tbody>
         {scheduleMessage.map((messageObj) => (
             <tr key={messageObj.id} style={{ borderBottom: "1px solid #ccc" }}>
-            <td style={{ padding: "10px" }}>{messageObj.message}</td>
             <td style={{ padding: "10px" }}>{messageObj.scheduleDate}</td>
             <td style={{ padding: "10px" }}>
                 {messageObj.recipients ? messageObj.recipients.join(", ") : "No recipients"}
             </td>
+            <td style={{ padding: "10px" }}>{messageObj.message}</td>
             <td style={{ padding: "10px" }}>
                 {/* Add a delete button for each row */}
                 <button onClick={() => openConfirmation(messageObj)}>Delete</button>
