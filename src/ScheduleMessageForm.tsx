@@ -1,10 +1,11 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, ReactElement } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { generateClient } from "aws-amplify/data";
 import { useAuthenticator } from "@aws-amplify/ui-react";
 import { FileUploader } from "@aws-amplify/ui-react-storage";
 import { Button } from '@aws-amplify/ui-react';
 import "@aws-amplify/ui-react/styles.css";
+import { uploadData } from 'aws-amplify/storage';
 
 import type { Schema } from "../amplify/data/resource";
 
@@ -23,13 +24,50 @@ function ScheduleMessageForm() {
   const [dateError, setDateError] = useState("");
   const [emailError, setEmailError] = useState("");
   const [uniqueDateError, setUniqueDateError] = useState("");
-  const [uploadedFiles, setUploadedFiles] = useState<string[]>([]); // Store uploaded file paths
+  // const [uploadedFiles, setUploadedFiles] = useState<string[]>([]); // Store uploaded file paths
+  const [uploadedFiles, setUploadedFiles] = useState<File[]>([]); // Store uploaded file paths
 
   useEffect(() => {
     if (user?.signInDetails?.loginId) {
       setUserEmail(user.signInDetails.loginId);
     }
   }, [user]);
+
+  // const handleChange = (event) => {
+  //   setUploadedFiles(event.target.files?.[0]);
+  // };
+
+  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setUploadedFiles(event.target.files ? Array.from(event.target.files) : []);
+  };
+
+  const handleClick = async () => {
+    if (uploadedFiles.length === 0) {
+      console.error("No files selected for upload.");
+      return;
+    }
+  
+    try {
+      await Promise.all(
+        uploadedFiles.map(async (file) => {
+          const path = `uploads/${userEmail}/${scheduleDate}/${file.name}`;
+  
+          await uploadData({
+            path,
+            data: file, // Each file should be uploaded individually
+          });
+  
+          console.log(`Uploaded: ${file.name}`);
+        })
+      );
+  
+      alert("All files uploaded successfully!");
+    } catch (error) {
+      console.error("Error uploading files:", error);
+      alert("Failed to upload files. Please try again.");
+    }
+  };
+  
 
   async function checkExistingMessage(date: string) {
     if (!userEmail) return false;
@@ -97,7 +135,7 @@ function ScheduleMessageForm() {
         } else {
           setUniqueDateError("");
         }
-
+        // saving it to DB
         await client.models.ScheduledMessage.create({
           userEmail,
           scheduleDate,
@@ -105,6 +143,10 @@ function ScheduleMessageForm() {
           messageStatus: "SCHEDULED",
           recipients: recipients.split(",").map((email: string) => email.trim()),
         });
+
+        // uploading files to s3
+        // setUploadedFiles(event.target.files ? Array.from(event.target.files) : []);
+        // setUploadedFiles(event.target.files?.[0])
 
         alert("Message scheduled successfully!");
       }
@@ -121,6 +163,7 @@ function ScheduleMessageForm() {
       <h1>{editingMessage ? "Edit Scheduled Message" : "Schedule a Message"}</h1>
 
       <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+        <input type="file" onChange={handleChange} />
         {/* Schedule Date Input (Disabled when editing) */}
         <label>
           Schedule Date:
@@ -148,10 +191,10 @@ function ScheduleMessageForm() {
           <textarea value={message} onChange={(e) => setMessage(e.target.value)} required />
         </label>
 
-        {/* File Uploader */}
+        File Uploader
         <label>
           Upload Attachments:
-          <FileUploader
+          {/* <FileUploader
               acceptedFileTypes={[
                 // you can list file extensions:
                 '.gif',
@@ -179,9 +222,12 @@ function ScheduleMessageForm() {
                 return `${count} images uploaded`;
               },
             }}
-          />
+          /> */}
           {/* <Button onClick={() => ref.current.clearFiles()}>Clear Files</Button> */}
-
+        <div>
+          <input type="file" onChange={handleChange} />
+          <button onClick={handleClick}>Upload</button>
+        </div>
         </label>
 
         {/* Buttons */}
