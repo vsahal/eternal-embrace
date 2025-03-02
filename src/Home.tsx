@@ -3,6 +3,9 @@ import type { Schema } from "../amplify/data/resource";
 import { useAuthenticator } from "@aws-amplify/ui-react";
 import { generateClient } from "aws-amplify/data";
 import { useNavigate } from "react-router-dom";
+import { getCurrentUser } from 'aws-amplify/auth';
+import { fetchAuthSession } from 'aws-amplify/auth';
+
 
 const client = generateClient<Schema>();
 
@@ -38,18 +41,35 @@ function Home() {
     setIsConfirmationOpen(false);
   };
 
-  function deleteScheduledMessage(userEmail: string, scheduleDate: string) {
+  async function deleteScheduledMessage(userEmail: string, scheduleDate: string) {
     client.models.ScheduledMessage.delete({ userEmail, scheduleDate })
   }
 
+  async function handleSandbox(): Promise<void> {
+    const { username, userId, signInDetails } = await getCurrentUser();
+    const session = await fetchAuthSession();
+
+    console.log("username", username);
+    console.log("user id", userId);
+    console.log("sign-in details", signInDetails);
+    // console.log("id token", session.tokens.idToken)
+    // console.log("access token", session.tokens.accessToken)
+  }
+  
+
+
 return (
     <main>
+      <button onClick={handleSandbox} style={{ padding: "10px 20px", fontSize: "16px" }}>
+        Click Me sandbox
+      </button>
     <h1>{user?.signInDetails?.loginId}'s Scheduled Messages</h1>
-
     <div style={{ position: "absolute", top: "10px", right: "10px" }}>
+        <button onClick={() => navigate("/upload")}>Upload Files</button>
+    </div>
+    <div style={{ position: "absolute", top: "60px", right: "10px" }}>
         <button onClick={() => navigate("/schedule")}>Schedule a Message</button>
     </div>
-
     <div style={{ position: "absolute", top: "10px", left: "10px" }}>
         <button onClick={signOut}>Sign out</button>
     </div>

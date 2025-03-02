@@ -30,4 +30,8 @@ amplify_outputs*
 amplifyconfiguration*
 
 # scratch
-scratch.tsx
+scratch*
+sandbox*
+
+# env
+.env

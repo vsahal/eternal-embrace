@@ -39,12 +39,14 @@ const schema = a.schema({
       recipients: a.string().array().required(), // Array of recipient emails
       // TODO add file/img code
       // fileKeys: a.string().array(), // Store S3 file keys as an array of strings
-      messageStatus: a.enum(["SCHEDULED", "SENT"])
+      identityId: a.string(), // Cognito identity ID
+      messageStatus: a.enum(["SCHEDULED", "SENT"]),
+      fileLocation: a.string().array(), // S3 file location
     })
     // userEmail is primary key and scheduleDate is secondary key
     .identifier(["userEmail", "scheduleDate"])
     // FOR GSI
-    // .secondaryIndexes((index) => [index("scheduleDate")])
+    .secondaryIndexes((index) => [index("scheduleDate")])
     .authorization((allow) => [allow.owner()]) // Ensuring only the owner can access their messages
 });
 

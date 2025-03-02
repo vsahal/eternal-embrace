@@ -14,8 +14,10 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
     {/* Centered Container */}
     <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "5px", marginTop: "20px" }}>
-      <h1>Dear Future</h1>
-      <img src="/heart_clock.png" alt="Dear Future Logo" style={{ width: "100px", height: "100px" }} />
+      <h1 style={{ paddingTop: "100px" }}>
+        Eternal Embrace
+      </h1>
+      <img src="/eternal_embrace_v1.png" alt="Eternam Embrace Logo" style={{ width: "100px", height: "100px", marginTop: "100px" }} />
     </div>
     <Authenticator>
       <App />
