@@ -1,12 +1,6 @@
 import { useAuthenticator } from "@aws-amplify/ui-react";
 import { FileUploader, StorageImage } from "@aws-amplify/ui-react-storage";
 import "@aws-amplify/ui-react/styles.css";
-<<<<<<< HEAD
-import { uploadData } from 'aws-amplify/storage';
-import { StorageImage } from '@aws-amplify/ui-react-storage';
-import { getCurrentUser } from 'aws-amplify/auth';
-=======
->>>>>>> ed0ca7d (add mail .py script and fix some front end bugs)
 import { fetchAuthSession } from 'aws-amplify/auth';
 import { generateClient } from "aws-amplify/data";
 import { copy, getUrl, list, remove } from 'aws-amplify/storage';
@@ -35,10 +29,7 @@ function ScheduleMessageForm() {
   const [uniqueDateError, setUniqueDateError] = useState("");
   const [scheduledMessages, setScheduledMessages] = useState<Array<Schema["ScheduledMessage"]["type"]>>([]);
   const [identityId, setIdentityId] = useState<string | undefined>();
-<<<<<<< HEAD
-=======
   const [uploadedSelectedFiles, setUploadedSelectedFiles] = useState<string[]>([]); // State for selected files
->>>>>>> ed0ca7d (add mail .py script and fix some front end bugs)
 
   async function fetchIdentityId() {
     try {
@@ -49,7 +40,9 @@ function ScheduleMessageForm() {
     }
   }
 
-  fetchIdentityId();
+  useEffect(() => {
+    fetchIdentityId();
+  }, []);
 
   useEffect(() => {
     if (user?.signInDetails?.loginId) {
@@ -78,24 +71,17 @@ function ScheduleMessageForm() {
       const loadFiles = async () => {
         try {
           const result = await list({
-<<<<<<< HEAD
-            // path: ({ identityId }) => `uploads/${identityId}/${userEmail}/${scheduleDate}/`,
-            path: filePath,
-            options: { listAll: true },
-          });
-=======
             path: filePath,
             options: { listAll: true },
           });
           console.log(`Following files were loaded from S3: ${filePath} - files: `, result);
->>>>>>> ed0ca7d (add mail .py script and fix some front end bugs)
 
           if (!result.items) return;
 
           // Filter images
           const imageFiles = result.items
             .map((item) => item.path)
-            .filter((file) => /\.(jpg|jpeg|png|gif)$/i.test(file));
+            .filter((file) => /\.(jpg|jpeg|png)$/i.test(file));
 
           setImageFilePaths(imageFiles);
           console.log("Image paths: ", imageFiles);
@@ -260,28 +246,6 @@ function ScheduleMessageForm() {
     );
   };
 
-<<<<<<< HEAD
-  // const UploadFileGallery = ({ filePath }: { filePath: string }) => {
-  //   const [imageFilePaths, setImageFilePaths] = useState<string[]>([]);
-  //   const [nonImageFilePaths, setNonImageFilePaths] = useState<string[]>([]);
-  //   const [nonImageFileUrls, setNonImageFileUrls] = useState<string[]>([]);
-  //   const [loading, setLoading] = useState<boolean>(true);
-  //   const [selectedFiles, setSelectedFiles] = useState<string[]>([]); // State for selected files
-
-  //   useEffect(() => {
-  //     const loadFiles = async () => {
-  //       try {
-  //         const result = await list({
-  //           path: filePath,
-  //           options: { listAll: true },
-  //         });
-
-  //         if (!result.items) return;
-
-  //         const imageFiles = result.items
-  //           .map((item) => item.path)
-  //           .filter((file) => /\.(jpg|jpeg|png|gif)$/i.test(file));
-=======
   const UploadFileGallery = () => {
 
     const [uploadedImageFilePaths, setUploadedImageFilePaths] = useState<string[]>([]);
@@ -297,188 +261,33 @@ function ScheduleMessageForm() {
           });
 
           if (!result.items) return;
->>>>>>> ed0ca7d (add mail .py script and fix some front end bugs)
 
-  //         setImageFilePaths(imageFiles);
+          // Filter images
+          const imageFiles = result.items
+            .map((item) => item.path)
+            .filter((file) => /\.(jpg|jpeg|png)$/i.test(file));
 
-  //         const otherFiles = result.items
-  //           .map((item) => item.path)
-  //           .filter((file) => /\.(doc|docx|pdf|mp4)$/i.test(file));
+          setUploadedImageFilePaths(imageFiles);
+          console.log("Image paths: ", imageFiles);
 
-  //         setNonImageFilePaths(otherFiles);
+          // Filter non-image files
+          const otherFiles = result.items
+            .map((item) => item.path)
+            .filter((file) => /\.(doc|docx|pdf|mp4)$/i.test(file));
 
-  //         const fileUrls = await Promise.all(
-  //           otherFiles.map(async (filePath) => {
-  //             try {
-  //               const linkToStorageFile = await getUrl({
-  //                 path: ({ identityId }) =>
-  //                   `uploads/${identityId}/${filePath.split("/").slice(-2).join("/")}`,
-  //                 options: {
-  //                   bucket: "scheduledMessagesFiles",
-  //                   validateObjectExistence: true,
-  //                   expiresIn: 600,
-  //                   useAccelerateEndpoint: false,
-  //                 },
-  //               });
-  //               return linkToStorageFile.url.toString();
-  //             } catch (error) {
-  //               console.error(`Error fetching URL for ${filePath}:`, error);
-  //               return null;
-  //             }
-  //           })
-  //         );
+          setUploadedNonImageFilePaths(otherFiles);
+          console.log("Non-image file paths: ", otherFiles);
 
-  //         setNonImageFileUrls(fileUrls.filter((url) => url !== null) as string[]);
-  //       } catch (error) {
-  //         console.error("Error loading files:", error);
-  //       } finally {
-  //         setLoading(false);
-  //       }
-  //     };
+          // Fetch storage URLs in parallel
+          const fileUrls = await Promise.all(
+            otherFiles.map(async (filePath) => {
+              // spliting so we can get last part of the path since you need to pass in
+              // identityId in a ceratin way or u get 403
+              const parts = filePath.split("/");
+              const lastTwoParts = parts.slice(-2).join("/");
 
-  //     loadFiles();
-  //   }, []);
+              console.log(`Extracted last two parts: ${lastTwoParts}`);
 
-<<<<<<< HEAD
-  //   // Handle checkbox toggle
-  //   const handleCheckboxChange = (file: string) => {
-  //     setSelectedFiles((prevSelected) => {
-  //       const updatedSelection = prevSelected.includes(file)
-  //         ? prevSelected.filter((selected) => selected !== file)
-  //         : [...prevSelected, file];
-    
-  //       console.log("Updated selectedFiles array:", updatedSelection); // 🔹 Logging the selected files
-    
-  //       return updatedSelection;
-  //     });
-  //   };    
-
-  //   // Handle file deletion
-  //   const handleDelete = async (filePath: string) => {
-  //     try {
-  //       await remove({ path: filePath });
-  //       setImageFilePaths((prev) => prev.filter((file) => file !== filePath));
-  //       setNonImageFilePaths((prev) => prev.filter((file) => file !== filePath));
-  //       setNonImageFileUrls((prev) => prev.filter((url) => !url.includes(filePath)));
-  //       setSelectedFiles((prevSelected) => prevSelected.filter((file) => file !== filePath));
-  //       window.location.reload();
-  //     } catch (error) {
-  //       console.error(`Error deleting file: ${filePath}`, error);
-  //     }
-  //   };
-
-  //   return (
-  //     <div>
-  //       <h3>Uploaded Images</h3>
-  //       {loading ? (
-  //         <p>Loading files...</p>
-  //       ) : imageFilePaths.length > 0 ? (
-  //         <table border={1} cellPadding="10" style={{ width: "100%", textAlign: "left" }}>
-  //           <thead>
-  //             <tr>
-  //               <th>Select</th>
-  //               <th>Preview</th>
-  //               <th>Filename</th>
-  //               <th>Action</th>
-  //             </tr>
-  //           </thead>
-  //           <tbody>
-  //             {imageFilePaths.map((file, index) => (
-  //               <tr key={index}>
-  //                 <td>
-  //                   <input
-  //                     type="checkbox"
-  //                     checked={selectedFiles.includes(file)}
-  //                     onChange={() => handleCheckboxChange(file)}
-  //                   />
-  //                 </td>
-  //                 <td>
-  //                   <StorageImage
-  //                     alt={`Image ${index + 1}`}
-  //                     path={file}
-  //                     style={{
-  //                       width: "100px",
-  //                       height: "100px",
-  //                       objectFit: "cover",
-  //                       borderRadius: "8px",
-  //                     }}
-  //                   />
-  //                 </td>
-  //                 <td>{file.split("/").pop()}</td>
-  //                 <td>
-  //                   <button
-  //                     onClick={() => handleDelete(file)}
-  //                     style={{
-  //                       background: "red",
-  //                       color: "white",
-  //                       border: "none",
-  //                       padding: "5px 10px",
-  //                       cursor: "pointer",
-  //                     }}
-  //                   >
-  //                     Delete
-  //                   </button>
-  //                 </td>
-  //               </tr>
-  //             ))}
-  //           </tbody>
-  //         </table>
-  //       ) : (
-  //         <p>No images found.</p>
-  //       )}
-
-  //       <h2>Current Scheduled Non-Image Files Uploaded</h2>
-  //       {nonImageFilePaths.length > 0 ? (
-  //         <table border={1} cellPadding="10" style={{ width: "100%", textAlign: "left" }}>
-  //           <thead>
-  //             <tr>
-  //               <th>Select</th>
-  //               <th>Preview Link</th>
-  //               <th>Filename</th>
-  //               <th>Action</th>
-  //             </tr>
-  //           </thead>
-  //           <tbody>
-  //             {nonImageFilePaths.map((file, index) => (
-  //               <tr key={index}>
-  //                 <td>
-  //                   <input
-  //                     type="checkbox"
-  //                     checked={selectedFiles.includes(file)}
-  //                     onChange={() => handleCheckboxChange(file)}
-  //                   />
-  //                 </td>
-  //                 <td>
-  //                   <a href={nonImageFileUrls[index]} target="_blank" rel="noopener noreferrer">
-  //                     View File
-  //                   </a>
-  //                 </td>
-  //                 <td>{file.split("/").pop()}</td>
-  //                 <td>
-  //                   <button
-  //                     onClick={() => handleDelete(file)}
-  //                     style={{
-  //                       background: "red",
-  //                       color: "white",
-  //                       border: "none",
-  //                       padding: "5px 10px",
-  //                       cursor: "pointer",
-  //                     }}
-  //                   >
-  //                     Delete
-  //                   </button>
-  //                 </td>
-  //               </tr>
-  //             ))}
-  //           </tbody>
-  //         </table>
-  //       ) : (
-  //         <p>No non-image files found.</p>
-  //       )}
-  //     </div>
-  //   );
-  // };
-=======
               try {
                 const linkToStorageFile = await getUrl({
                   path: ({ identityId }) => `uploads/${identityId}/${userEmail}/${lastTwoParts}`,
@@ -604,7 +413,6 @@ function ScheduleMessageForm() {
       </div>
     );
   };
->>>>>>> ed0ca7d (add mail .py script and fix some front end bugs)
 
 
   async function checkExistingMessage(date: string) {
@@ -628,11 +436,7 @@ function ScheduleMessageForm() {
   //   setScheduleDate(event.target.value);
   // }
 
-<<<<<<< HEAD
-  function handleRecipientsChange(event: React.ChangeEvent<HTMLInputElement>) {
-=======
   async function handleRecipientsChange(event: React.ChangeEvent<HTMLTextAreaElement>) {
->>>>>>> ed0ca7d (add mail .py script and fix some front end bugs)
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     const emailList = event.target.value.split(",").map((email) => email.trim());
     const invalidEmails = emailList.filter((email) => email.length > 0 && !emailRegex.test(email));
@@ -705,7 +509,7 @@ function ScheduleMessageForm() {
         alert("Message scheduled successfully!");
       }
 
-      navigate("/", { replace: true });
+      navigate("/home", { replace: true });
     } catch (error) {
       console.error("Error submitting form:", error);
       alert("An error occurred. Please try again.");
@@ -760,10 +564,6 @@ function ScheduleMessageForm() {
             Some dates may be disabled because messages are already scheduled for those dates.
           </p>
           Schedule Date:
-<<<<<<< HEAD
-          {/* <input type="date" value={scheduleDate} onChange={handleDateChange} required disabled={!!editingMessage} /> */}
-          <input type="date" value={scheduleDate} onChange={handleDateChange}/>
-=======
           <DatePicker
             showIcon
             selected={scheduleDate}
@@ -781,7 +581,6 @@ function ScheduleMessageForm() {
             excludeDates={disabledDates}
             placeholderText="Select a date"
           />
->>>>>>> ed0ca7d (add mail .py script and fix some front end bugs)
         </label>
         {dateError && <p style={{ color: "red" }}>{dateError}</p>}
         {uniqueDateError && <p style={{ color: "red" }}>{uniqueDateError}</p>}
@@ -789,22 +588,30 @@ function ScheduleMessageForm() {
         {/* Recipients (To) Input */}
         <label>
           To (Emails, separated by commas):
-          <input
-            type="text"
+          <textarea
             value={recipients}
             onChange={handleRecipientsChange}
             placeholder="example@example.com, another@example.com"
             required
+            rows={3} // adjust rows as needed
+            style={{ width: "100%" }} // optional: make it span the full width
           />
         </label>
-        {emailError && <p style={{ color: "red" }}>{emailError}</p>}
+
+        {emailError && (
+          <p
+            style={{
+              color: "#d9534f", // less intense red (Bootstrap's 'danger' color)
+              fontWeight: "bold", // make it bold
+              textDecoration: "underline", // underline the text
+            }}
+          >
+            {emailError}
+          </p>
+        )}
 
         {/* Message Input */}
         <label>
-<<<<<<< HEAD
-          Message:
-          <textarea value={message} onChange={(e) => setMessage(e.target.value)} required />
-=======
           <textarea
             value={message}
             onChange={(e) => setMessage(DOMPurify.sanitize(e.target.value))}
@@ -812,7 +619,6 @@ function ScheduleMessageForm() {
             rows={3}
             style={{ width: '100%' }}
           />
->>>>>>> ed0ca7d (add mail .py script and fix some front end bugs)
         </label>
 
         {/* File Uploader */}
@@ -822,8 +628,6 @@ function ScheduleMessageForm() {
             <FileUploader
               acceptedFileTypes={[
                 // you can list file extensions:
-                '.gif',
-                '.bmp',
                 '.doc',
                 '.docx',
                 '.jpeg',
@@ -833,22 +637,6 @@ function ScheduleMessageForm() {
                 'image/png',
                 'video/*',
               ]}
-<<<<<<< HEAD
-              // path={({ identityId }) => `uploads/${userEmail}/${scheduleDate}/`}
-            path={({ identityId }) => `uploads/${identityId}/${userEmail}/${scheduleDate}/`}
-            // path=`uploads/${userEmail}/${scheduleDate}/${file.name}`
-            autoUpload={false}
-            maxFileCount={5}
-            isResumable
-            // ref={ref}
-            // TODO: add check for total file size since Amazon SES has a max email size of 40MB
-            // maxFileSize={7500000} // about 7.5MB since Amazon SES max email size is 40MB
-            displayText={{
-              // some text are plain strings
-              dropFilesText: 'Drop files here or',
-              browseFilesText: 'Browse files',
-              // others are functions that take an argument
-=======
               path={({ identityId }) => `uploads/${identityId}/${userEmail}/${scheduleDate}/`}
               autoUpload={true}
               maxFileCount={5}
@@ -863,22 +651,17 @@ function ScheduleMessageForm() {
                 dropFilesText: 'Drop files here or',
                 browseFilesText: 'Browse files',
                 // others are functions that take an argument
->>>>>>> ed0ca7d (add mail .py script and fix some front end bugs)
                 getFilesUploadedText: (count) => `${count} files uploaded`,
               }}
             />
           </label>
         ) : (
-<<<<<<< HEAD
-          <p style={{ color: 'red' }}>Please select a date before uploading files.</p>
-=======
           <p
             style={{
               color: "#d9534f", // less intense red (Bootstrap's 'danger' color)
               fontWeight: "bold", // make it bold
               textDecoration: "underline", // underline the text
             }}>Please type a message before uploading files.</p>
->>>>>>> ed0ca7d (add mail .py script and fix some front end bugs)
         )}
         {editingMessage && (
           <div>
@@ -888,12 +671,11 @@ function ScheduleMessageForm() {
             </div>
 
           </div>
-
         )}
 
         {/* Buttons */}
         <div style={{ display: "flex", justifyContent: "space-between", marginTop: "10px" }}>
-          <button type="button" onClick={() => navigate("/", { replace: true })} style={{ padding: "10px 20px" }}>
+          <button type="button" onClick={() => navigate("/home", { replace: true })} style={{ padding: "10px 20px" }}>
             Back
           </button>
           <button type="submit" style={{ padding: "10px 20px" }}>
@@ -901,12 +683,6 @@ function ScheduleMessageForm() {
           </button>
         </div>
         <div>
-<<<<<<< HEAD
-          <h1>File Browser</h1>
-          {/* <UploadFileGallery filePath={`uploads/${identityId}/${userEmail}/form_uploads/`} /> */}
-
-        </div>
-=======
           {/* Forcing user to select date first before they can upload files */}
           <div style={{ position: "absolute", top: "10px", right: "10px" }}>
             <button onClick={() => navigate("/home")}>Home</button>
@@ -925,7 +701,6 @@ function ScheduleMessageForm() {
             </div>
           </div>
         )}
->>>>>>> ed0ca7d (add mail .py script and fix some front end bugs)
       </form>
     </main>
   );

@@ -15,6 +15,7 @@ function Home() {
   const [isConfirmationOpen, setIsConfirmationOpen] = useState(false); // Track if the confirmation pop-up is open
   const navigate = useNavigate();
 
+
   useEffect(() => {
     client.models.ScheduledMessage.observeQuery().subscribe({
       next: (data) => setScheduledMessages([...data.items]),

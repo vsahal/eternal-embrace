@@ -17,8 +17,17 @@ import { fetchUserAttributes } from 'aws-amplify/auth';
 import { processFile } from '../utils/utils';
 
 
-
 function UploadForm() {
+
+  const [userEmail, setUserEmail] = useState<string | undefined>();
+  const { user } = useAuthenticator();
+  const navigate = useNavigate();
+  const client = generateClient<Schema>();
+  useEffect(() => {
+      if (user?.signInDetails?.loginId) {
+        setUserEmail(user.signInDetails.loginId);
+      }
+  }, [user]);
 
     const FileGallery = () => {
         const [imageFilePaths, setImageFilePaths] = useState<string[]>([]);
@@ -31,18 +40,20 @@ function UploadForm() {
             try {
               const { username, userId, signInDetails } = await getCurrentUser();
               const session = await fetchAuthSession();
-    
+              
               const result = await list({
                 path: ({ identityId }) => `uploads/${identityId}/${userEmail}/form_uploads/`,
                 options: { listAll: true },
               });
+
+              console.log("sahalv LOGGING UploadForm List result: ", result);
     
               if (!result.items) return;
     
               // Filter images
               const imageFiles = result.items
                 .map((item) => item.path)
-                .filter((file) => /\.(jpg|jpeg|png|gif)$/i.test(file));
+                .filter((file) => /\.(jpg|jpeg|png)$/i.test(file));
     
               setImageFilePaths(imageFiles);
               console.log("Image paths: ", imageFiles);
@@ -112,11 +123,7 @@ function UploadForm() {
     
         return (
           <div>
-<<<<<<< HEAD
-            <h3>Uploaded Images</h3>
-=======
             <h3 style={{ marginTop: '1rem' }}><u>Images</u></h3>
->>>>>>> ed0ca7d (add mail .py script and fix some front end bugs)
             {loading ? (
               <p>Loading files...</p>
             ) : imageFilePaths.length > 0 ? (
@@ -165,8 +172,7 @@ function UploadForm() {
             ) : (
               <p>No images found.</p>
             )}
-    
-            <h2>Current Non-Image Files Uploaded</h2>
+            <h3 style={{ marginTop: '3rem' }}><u>All Other Media</u></h3>
             {nonImageFilePaths.length > 0 ? (
               <table border={1} cellPadding="10" style={{ width: "100%", textAlign: "left" }}>
                 <thead>
@@ -209,16 +215,6 @@ function UploadForm() {
           </div>
         );
       };
-    const [userEmail, setUserEmail] = useState<string | undefined>();
-
-    const { user } = useAuthenticator();
-    const navigate = useNavigate();
-    const client = generateClient<Schema>();
-    useEffect(() => {
-        if (user?.signInDetails?.loginId) {
-          setUserEmail(user.signInDetails.loginId);
-        }
-    }, [user]);
 
     return (
         <main style={{ paddingTop: "20px" }}>
@@ -230,7 +226,6 @@ function UploadForm() {
                 <FileUploader
                     acceptedFileTypes={[
                         // you can list file extensions:
-                        '.gif',
                         '.doc',
                         '.docx',
                         '.jpeg',
@@ -243,13 +238,8 @@ function UploadForm() {
                     // path={({ identityId }) => `uploads/${userEmail}/${scheduleDate}/`}
                     path={({ identityId }) => `uploads/${identityId}/${userEmail}/form_uploads/`}
                     // path=`uploads/${userEmail}/${scheduleDate}/${file.name}`
-<<<<<<< HEAD
-                    autoUpload={false}
-                    maxFileCount={5}
-=======
                     autoUpload={true}
                     maxFileCount={10}
->>>>>>> ed0ca7d (add mail .py script and fix some front end bugs)
                     isResumable
                     processFile={processFile}
                     // ref={ref}
@@ -260,7 +250,7 @@ function UploadForm() {
                     dropFilesText: 'Drop files here or',
                     browseFilesText: 'Browse files',
                     // others are functions that take an argument
-                        getFilesUploadedText: (count) => `${count} files uploaded`,
+                    getFilesUploadedText: (count) => `${count} files uploaded`,
                     }}
             />
             <h1>Current Uploaded Media</h1>
