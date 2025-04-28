@@ -1,19 +1,23 @@
-import { useState, useEffect, ReactElement } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
-import { generateClient } from "aws-amplify/data";
 import { useAuthenticator } from "@aws-amplify/ui-react";
-import { FileUploader } from "@aws-amplify/ui-react-storage";
-import { Button } from '@aws-amplify/ui-react';
+import { FileUploader, StorageImage } from "@aws-amplify/ui-react-storage";
 import "@aws-amplify/ui-react/styles.css";
+<<<<<<< HEAD
 import { uploadData } from 'aws-amplify/storage';
 import { StorageImage } from '@aws-amplify/ui-react-storage';
 import { getCurrentUser } from 'aws-amplify/auth';
+=======
+>>>>>>> ed0ca7d (add mail .py script and fix some front end bugs)
 import { fetchAuthSession } from 'aws-amplify/auth';
-import { list } from 'aws-amplify/storage';
-import { remove } from 'aws-amplify/storage';
+import { generateClient } from "aws-amplify/data";
+import { copy, getUrl, list, remove } from 'aws-amplify/storage';
+import { format, parse } from "date-fns";
+import DOMPurify from 'dompurify';
+import React, { useEffect, useState } from "react";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
+import { useLocation, useNavigate } from "react-router-dom";
 import type { Schema } from "../amplify/data/resource";
-import { getUrl } from 'aws-amplify/storage';
-import { fetchUserAttributes } from 'aws-amplify/auth';
+import { processFile } from '../utils/utils';
 
 function ScheduleMessageForm() {
   const { user } = useAuthenticator();
@@ -22,7 +26,6 @@ function ScheduleMessageForm() {
   const location = useLocation();
 
   const editingMessage = location.state?.messageObj || null;
-
   const [userEmail, setUserEmail] = useState<string | undefined>();
   const [scheduleDate, setScheduleDate] = useState(editingMessage?.scheduleDate || "");
   const [message, setMessage] = useState(editingMessage?.message || "");
@@ -30,10 +33,12 @@ function ScheduleMessageForm() {
   const [dateError, setDateError] = useState("");
   const [emailError, setEmailError] = useState("");
   const [uniqueDateError, setUniqueDateError] = useState("");
-  // const [uploadedFiles, setUploadedFiles] = useState<string[]>([]); // Store uploaded file paths
-  const [uploadedFiles, setUploadedFiles] = useState<File[]>([]); // Store uploaded file paths
-  const [confirmUpload, setConfirmUpload] = useState(false);
+  const [scheduledMessages, setScheduledMessages] = useState<Array<Schema["ScheduledMessage"]["type"]>>([]);
   const [identityId, setIdentityId] = useState<string | undefined>();
+<<<<<<< HEAD
+=======
+  const [uploadedSelectedFiles, setUploadedSelectedFiles] = useState<string[]>([]); // State for selected files
+>>>>>>> ed0ca7d (add mail .py script and fix some front end bugs)
 
   async function fetchIdentityId() {
     try {
@@ -52,6 +57,15 @@ function ScheduleMessageForm() {
     }
   }, [user]);
 
+  useEffect(() => {
+    client.models.ScheduledMessage.observeQuery().subscribe({
+      next: (data) => setScheduledMessages([...data.items]),
+    });
+  }, []);
+
+  const disabledDates = scheduledMessages.map((msg) =>
+    parse(msg.scheduleDate, "MM-dd-yyyy", new Date())
+  );
 
   const FileGallery = ({ filePath }: { filePath: string }) => {
     const [imageFilePaths, setImageFilePaths] = useState<string[]>([]);
@@ -60,16 +74,21 @@ function ScheduleMessageForm() {
     const [loading, setLoading] = useState<boolean>(true);
 
     useEffect(() => {
+      const filePath = `uploads/${identityId}/${userEmail}/${scheduleDate}/`;
       const loadFiles = async () => {
         try {
-          const { username, userId, signInDetails } = await getCurrentUser();
-          const session = await fetchAuthSession();
-
           const result = await list({
+<<<<<<< HEAD
             // path: ({ identityId }) => `uploads/${identityId}/${userEmail}/${scheduleDate}/`,
             path: filePath,
             options: { listAll: true },
           });
+=======
+            path: filePath,
+            options: { listAll: true },
+          });
+          console.log(`Following files were loaded from S3: ${filePath} - files: `, result);
+>>>>>>> ed0ca7d (add mail .py script and fix some front end bugs)
 
           if (!result.items) return;
 
@@ -147,7 +166,7 @@ function ScheduleMessageForm() {
 
     return (
       <div>
-        <h3>Uploaded Images</h3>
+        <h3>Uploaded Image Files</h3>
         {loading ? (
           <p>Loading files...</p>
         ) : imageFilePaths.length > 0 ? (
@@ -197,7 +216,7 @@ function ScheduleMessageForm() {
           <p>No images found.</p>
         )}
 
-        <h2>Current Scheduled Non-Image Files Uploaded</h2>
+        <h3>Uploaded Non-Image Files</h3>
         {nonImageFilePaths.length > 0 ? (
           <table border={1} cellPadding="10" style={{ width: "100%", textAlign: "left" }}>
             <thead>
@@ -241,6 +260,7 @@ function ScheduleMessageForm() {
     );
   };
 
+<<<<<<< HEAD
   // const UploadFileGallery = ({ filePath }: { filePath: string }) => {
   //   const [imageFilePaths, setImageFilePaths] = useState<string[]>([]);
   //   const [nonImageFilePaths, setNonImageFilePaths] = useState<string[]>([]);
@@ -261,6 +281,23 @@ function ScheduleMessageForm() {
   //         const imageFiles = result.items
   //           .map((item) => item.path)
   //           .filter((file) => /\.(jpg|jpeg|png|gif)$/i.test(file));
+=======
+  const UploadFileGallery = () => {
+
+    const [uploadedImageFilePaths, setUploadedImageFilePaths] = useState<string[]>([]);
+    const [uploadedNonImageFilePaths, setUploadedNonImageFilePaths] = useState<string[]>([]);
+    const [uploadedNonImageFileUrls, setUploadedNonImageFileUrls] = useState<string[]>([]);
+    const [uploadedLoading, setUploadedLoading] = useState<boolean>(true);
+    useEffect(() => {
+      const loadFiles = async () => {
+        try {
+          const result = await list({
+            path: ({ identityId }) => `uploads/${identityId}/${userEmail}/form_uploads/`,
+            options: { listAll: true },
+          });
+
+          if (!result.items) return;
+>>>>>>> ed0ca7d (add mail .py script and fix some front end bugs)
 
   //         setImageFilePaths(imageFiles);
 
@@ -302,6 +339,7 @@ function ScheduleMessageForm() {
   //     loadFiles();
   //   }, []);
 
+<<<<<<< HEAD
   //   // Handle checkbox toggle
   //   const handleCheckboxChange = (file: string) => {
   //     setSelectedFiles((prevSelected) => {
@@ -440,34 +478,133 @@ function ScheduleMessageForm() {
   //     </div>
   //   );
   // };
+=======
+              try {
+                const linkToStorageFile = await getUrl({
+                  path: ({ identityId }) => `uploads/${identityId}/${userEmail}/${lastTwoParts}`,
+                  options: {
+                    bucket: "scheduledMessagesFiles",
+                    validateObjectExistence: true,
+                    expiresIn: 600,
+                    useAccelerateEndpoint: false,
+                  },
+                });
+
+                return linkToStorageFile.url.toString();
+              } catch (error) {
+                console.error(`Error fetching URL for ${lastTwoParts}:`, error);
+                return null;
+              }
+            })
+          );
+
+          setUploadedNonImageFileUrls(fileUrls.filter((url) => url !== null) as string[]);
+        } catch (error) {
+          console.error("Error loading files:", error);
+        } finally {
+          setUploadedLoading(false);
+        }
+      };
+
+      loadFiles();
+    }, []);
+
+    // Handle checkbox toggle
+    const handleCheckboxChange = (file: string) => {
+      setUploadedSelectedFiles((prevSelected) => {
+        const updatedSelection = prevSelected.includes(file)
+          ? prevSelected.filter((selected) => selected !== file)
+          : [...prevSelected, file];
+
+        console.log("Updated selectedFiles array:", updatedSelection); // 🔹 Logging the selected files
+
+        return updatedSelection;
+      });
+    };
 
 
+    return (
+      <div>
+        <h3>Image File Library</h3>
+        {uploadedLoading ? (
+          <p>Loading files...</p>
+        ) : uploadedImageFilePaths.length > 0 ? (
+          <table border={1} cellPadding="10" style={{ width: "100%", textAlign: "left" }}>
+            <thead>
+              <tr>
+                <th>Select</th>
+                <th>Preview</th>
+                <th>Filename</th>
+              </tr>
+            </thead>
+            <tbody>
+              {uploadedImageFilePaths.map((file, index) => (
+                <tr key={index}>
+                  <td>
+                    <input
+                      type="checkbox"
+                      checked={uploadedSelectedFiles.includes(file)}
+                      onChange={() => handleCheckboxChange(file)}
+                    />
+                  </td>
+                  <td>
+                    <StorageImage
+                      alt={`Image ${index + 1}`}
+                      path={file}
+                      style={{
+                        width: "100px",
+                        height: "100px",
+                        objectFit: "cover",
+                        borderRadius: "8px",
+                      }}
+                    />
+                  </td>
+                  <td>{file.split("/").pop()}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        ) : (
+          <p>No images found.</p>
+        )}
 
-  async function handleSandbox() {
-    // const linkToStorageFile = await getUrl({
-    //   // identityId = 
-    //   // path: ({identityId}) => `uploads/${identityId}/mogli3000@gmail.com/2025-02-27/spray-paint.jpg`,
-    //   path: 'uploads/us-east-1:e349a6b9-5073-c655-a2ef-44b062d503e7/mogli3000@gmail.com/2025-02-27/spray-paint.jpg',
-    //   options: {
-    //     // specify a target bucket using name assigned in Amplify Backend
-    //     bucket: 'scheduledMessagesFiles',
-    //     // ensure object exists before getting url
-    //     validateObjectExistence: true, 
-    //     // url expiration time in seconds.
-    //     expiresIn: 300,
-    //     // whether to use accelerate endpoint
-    //     useAccelerateEndpoint: false,
-    //   }
-    // });
-    
-    const output2 = await fetchAuthSession();
-
-    // console.log(`sahalv LOGGING NOW the identityId: ${identityId}`);
-    console.log('sahalv LOGGING signed output2: ', output2);
-    
-    
-  }
-
+        <h3>Non-Image File Library </h3>
+        {uploadedNonImageFilePaths.length > 0 ? (
+          <table border={1} cellPadding="10" style={{ width: "100%", textAlign: "left" }}>
+            <thead>
+              <tr>
+                <th>Select</th>
+                <th>Preview Link</th>
+                <th>Filename</th>
+              </tr>
+            </thead>
+            <tbody>
+              {uploadedNonImageFilePaths.map((file, index) => (
+                <tr key={index}>
+                  <td>
+                    <input
+                      type="checkbox"
+                      checked={uploadedSelectedFiles.includes(file)}
+                      onChange={() => handleCheckboxChange(file)}
+                    />
+                  </td>
+                  <td>
+                    <a href={uploadedNonImageFileUrls[index]} target="_blank" rel="noopener noreferrer">
+                      View File
+                    </a>
+                  </td>
+                  <td>{file.split("/").pop()}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        ) : (
+          <p>No non-image files found.</p>
+        )}
+      </div>
+    );
+  };
+>>>>>>> ed0ca7d (add mail .py script and fix some front end bugs)
 
 
   async function checkExistingMessage(date: string) {
@@ -478,20 +615,24 @@ function ScheduleMessageForm() {
     return existingMessages.data.length > 0;
   }
 
-  function handleDateChange(event: React.ChangeEvent<HTMLInputElement>) {
-    const selectedDate = new Date(event.target.value);
-    const today = new Date();
-    today.setDate(today.getDate() + 1);
+  // async function handleDateChange(event: React.ChangeEvent<HTMLInputElement>) {
+  //   const selectedDate = new Date(event.target.value);
+  //   const today = new Date();
+  //   today.setDate(today.getDate());
 
-    if (selectedDate < today) {
-      setDateError("The scheduled date must be at least one day in the future.");
-    } else {
-      setDateError("");
-    }
-    setScheduleDate(event.target.value);
-  }
+  //   if (selectedDate <= today) {
+  //     setDateError("The scheduled date must be at least one day in the future.");
+  //   } else {
+  //     setDateError("");
+  //   }
+  //   setScheduleDate(event.target.value);
+  // }
 
+<<<<<<< HEAD
   function handleRecipientsChange(event: React.ChangeEvent<HTMLInputElement>) {
+=======
+  async function handleRecipientsChange(event: React.ChangeEvent<HTMLTextAreaElement>) {
+>>>>>>> ed0ca7d (add mail .py script and fix some front end bugs)
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     const emailList = event.target.value.split(",").map((email) => email.trim());
     const invalidEmails = emailList.filter((email) => email.length > 0 && !emailRegex.test(email));
@@ -507,13 +648,6 @@ function ScheduleMessageForm() {
   async function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
 
-    if (!confirmUpload) {
-      alert("If attachments are added ensure they are uploaded before submitting the form!");
-      setConfirmUpload(true);
-      return;
-    }
-
-
     if (dateError || emailError) {
       alert("Please fix all errors before submitting.");
       return;
@@ -527,15 +661,16 @@ function ScheduleMessageForm() {
     try {
       if (editingMessage) {
         const exists = await checkExistingMessage(scheduleDate);
-        if (exists) {
-          setUniqueDateError("A message is already scheduled for this date. Edit the existing one.");
-          return;
-        } else {
-          setUniqueDateError("");
-        }
+        // TODO: remove this check since we are are disabling dates using date picker
+        // if (exists) {
+        //   setUniqueDateError("A message is already scheduled for this date. Edit the existing one.");
+        //   return;
+        // } else {
+        //   setUniqueDateError("");
+        // }
         // get session for itentityId (might not even need it since we are editing and updated)
-        // const session = await fetchAuthSession();
-        // const identityId = session.identityId;
+        const session = await fetchAuthSession();
+        const identityId = session.identityId;
 
         await client.models.ScheduledMessage.update({
           id: editingMessage.id,
@@ -547,7 +682,9 @@ function ScheduleMessageForm() {
         });
 
         alert("Message updated successfully!");
+        navigate("/home", { replace: true });
       } else {
+        console.log("sahalv LOGGING creating a message")
         const exists = await checkExistingMessage(scheduleDate);
         if (exists) {
           setUniqueDateError("A message is already scheduled for this date. Edit the existing one.");
@@ -555,7 +692,6 @@ function ScheduleMessageForm() {
         } else {
           setUniqueDateError("");
         }
-
         // saving it to DB
         await client.models.ScheduledMessage.create({
           userEmail,
@@ -566,11 +702,6 @@ function ScheduleMessageForm() {
           identityId: identityId,
           fileLocation: [`uploads/${identityId}/${userEmail}/${scheduleDate}/`]
         });
-
-        // uploading files to s3
-        // setUploadedFiles(event.target.files ? Array.from(event.target.files) : []);
-        // setUploadedFiles(event.target.files?.[0])
-
         alert("Message scheduled successfully!");
       }
 
@@ -581,19 +712,76 @@ function ScheduleMessageForm() {
     }
   }
 
+
+  async function handleSelectedFiles(uploadedSelectedFiles: string[]) {
+    console.log("sahalv LOGGING in handleSelectedFiles");
+
+    // Iterate over each selected file path
+    for (const filePath of uploadedSelectedFiles) {
+      try {
+        // Define source and destination paths for the file copy
+        const sourcePath = `${filePath}`;
+        const parts = filePath.split('/');
+        const uploadsFolder = parts[0];
+        const identityId = parts[1];
+        const userEmail = parts[2];
+        const formUploadString = parts[3];
+        const fileName = parts[4];
+
+        const destinationPath = `${uploadsFolder}/${identityId}/${userEmail}/${scheduleDate}/${fileName}`;
+
+        // Perform the copy operation
+        const response = await copy({
+          source: {
+            path: sourcePath, // Source path
+          },
+          destination: {
+            path: destinationPath, // Destination path
+          },
+        });
+
+        console.log(`Successfully copied ${filePath} to shared bucket.`, response);
+      } catch (error) {
+        console.error(`Error copying file ${filePath}:`, error);
+      }
+    }
+
+    alert("Files uploaded successfully!");
+    window.location.reload();
+  }
+
   return (
     <main>
       <h1>{editingMessage ? "Edit Scheduled Message" : "Schedule a Message"}</h1>
-      {/* <button onClick={handleSandbox} style={{ padding: "10px 20px", fontSize: "16px" }}>
-        Click Me sandbox
-      </button> */}
 
       <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
-        {/* Schedule Date Input (Disabled when editing) */}
         <label>
+          <p style={{ fontSize: "0.85rem", color: "#555", marginTop: "5px" }}>
+            Some dates may be disabled because messages are already scheduled for those dates.
+          </p>
           Schedule Date:
+<<<<<<< HEAD
           {/* <input type="date" value={scheduleDate} onChange={handleDateChange} required disabled={!!editingMessage} /> */}
           <input type="date" value={scheduleDate} onChange={handleDateChange}/>
+=======
+          <DatePicker
+            showIcon
+            selected={scheduleDate}
+            onChange={(date) => {
+              if (date) {
+                const formattedDate = format(date, "MM-dd-yyyy");
+                setScheduleDate(formattedDate);
+              } else {
+                setScheduleDate(null);
+              }
+            }}
+            minDate={new Date(Date.now() + 86400000)}
+            isClearable={true}
+            dateFormat="MM/dd/yyyy"
+            excludeDates={disabledDates}
+            placeholderText="Select a date"
+          />
+>>>>>>> ed0ca7d (add mail .py script and fix some front end bugs)
         </label>
         {dateError && <p style={{ color: "red" }}>{dateError}</p>}
         {uniqueDateError && <p style={{ color: "red" }}>{uniqueDateError}</p>}
@@ -613,15 +801,25 @@ function ScheduleMessageForm() {
 
         {/* Message Input */}
         <label>
+<<<<<<< HEAD
           Message:
           <textarea value={message} onChange={(e) => setMessage(e.target.value)} required />
+=======
+          <textarea
+            value={message}
+            onChange={(e) => setMessage(DOMPurify.sanitize(e.target.value))}
+            required
+            rows={3}
+            style={{ width: '100%' }}
+          />
+>>>>>>> ed0ca7d (add mail .py script and fix some front end bugs)
         </label>
 
         {/* File Uploader */}
-        {scheduleDate ? (
-        <label>
-          Upload Attachments:
-          <FileUploader
+        {message ? (
+          <label>
+            Upload Attachments:
+            <FileUploader
               acceptedFileTypes={[
                 // you can list file extensions:
                 '.gif',
@@ -635,6 +833,7 @@ function ScheduleMessageForm() {
                 'image/png',
                 'video/*',
               ]}
+<<<<<<< HEAD
               // path={({ identityId }) => `uploads/${userEmail}/${scheduleDate}/`}
             path={({ identityId }) => `uploads/${identityId}/${userEmail}/${scheduleDate}/`}
             // path=`uploads/${userEmail}/${scheduleDate}/${file.name}`
@@ -649,26 +848,43 @@ function ScheduleMessageForm() {
               dropFilesText: 'Drop files here or',
               browseFilesText: 'Browse files',
               // others are functions that take an argument
+=======
+              path={({ identityId }) => `uploads/${identityId}/${userEmail}/${scheduleDate}/`}
+              autoUpload={true}
+              maxFileCount={5}
+              maxFileSize={5000000} // 5MB
+              processFile={processFile}
+              isResumable
+              // ref={ref}
+              // TODO: add check for total file size since email has max size
+              // maxFileSize={7500000} // about 7.5MB since Amazon SES max email size is 40MB
+              displayText={{
+                // some text are plain strings
+                dropFilesText: 'Drop files here or',
+                browseFilesText: 'Browse files',
+                // others are functions that take an argument
+>>>>>>> ed0ca7d (add mail .py script and fix some front end bugs)
                 getFilesUploadedText: (count) => `${count} files uploaded`,
               }}
             />
-
-            {/* <Button onClick={() => ref.current.clearFiles()}>Clear Files</Button> */}
-
-            {/* <div>
-                <input type="file" onChange={handleChange} />
-                <button onClick={handleClick}>Upload</button>
-              </div> */}
           </label>
         ) : (
+<<<<<<< HEAD
           <p style={{ color: 'red' }}>Please select a date before uploading files.</p>
+=======
+          <p
+            style={{
+              color: "#d9534f", // less intense red (Bootstrap's 'danger' color)
+              fontWeight: "bold", // make it bold
+              textDecoration: "underline", // underline the text
+            }}>Please type a message before uploading files.</p>
+>>>>>>> ed0ca7d (add mail .py script and fix some front end bugs)
         )}
         {editingMessage && (
           <div>
             <div>
-            <h2>Current Scheduled Images Uploaded</h2>
-            {/* <StorageImage alt="img" path={({ identityId }) => `uploads/${identityId}/${userEmail}/${scheduleDate}/spray-paint.jpg`} /> */}
-            <FileGallery filePath={`uploads/${identityId}/${userEmail}/${scheduleDate}/`} />
+              <h2>Current Scheduled Files Uploaded</h2>
+              <FileGallery filePath={`uploads/${identityId}/${userEmail}/${scheduleDate}/`} />
             </div>
 
           </div>
@@ -685,10 +901,31 @@ function ScheduleMessageForm() {
           </button>
         </div>
         <div>
+<<<<<<< HEAD
           <h1>File Browser</h1>
           {/* <UploadFileGallery filePath={`uploads/${identityId}/${userEmail}/form_uploads/`} /> */}
 
         </div>
+=======
+          {/* Forcing user to select date first before they can upload files */}
+          <div style={{ position: "absolute", top: "10px", right: "10px" }}>
+            <button onClick={() => navigate("/home")}>Home</button>
+          </div>
+        </div>
+        {message && (
+          <div>
+            <h1>File Browser</h1>
+            <UploadFileGallery />
+            <div>
+              <button
+                style={{ marginTop: "20px" }}
+                onClick={() => handleSelectedFiles(uploadedSelectedFiles)}>
+                Upload Selected Files and Submit
+              </button>
+            </div>
+          </div>
+        )}
+>>>>>>> ed0ca7d (add mail .py script and fix some front end bugs)
       </form>
     </main>
   );

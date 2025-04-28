@@ -74,3 +74,22 @@ export const handleFileDeletion = async (filePath: string) => {
     console.error(`Error deleting file: ${filePath}`, error);
   }
 };
+
+export const processFile = async ({ file }: { file: File }) => {
+  // Sanitize filename: remove whitespace, special chars, accents, etc.
+  const sanitizeFileName = (name: string) => {
+    return name
+      .normalize('NFKD')                      // Normalize to remove accents
+      .replace(/[\u0300-\u036f]/g, '')        // Remove combining marks
+      .replace(/\s+/g, '')                    // Remove all whitespace
+      .replace(/[^\w.-]/g, '')                // Remove non-word characters except . and -
+      .toLowerCase();                         // Optional: lowercase for consistency
+  };
+
+  const sanitizedFileName = sanitizeFileName(file.name);
+
+  return {
+    file,
+    key: sanitizedFileName,
+  };
+};

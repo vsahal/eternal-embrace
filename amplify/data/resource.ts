@@ -1,4 +1,9 @@
 import { type ClientSchema, a, defineData } from "@aws-amplify/backend";
+const SCHEDULED = "SCHEDULED";
+const SENT = "SENT";
+const USER_EMAIL = "userEmail"
+const SCHEDULE_DATE = "scheduleDate"
+
 
 /*== STEP 1 ===============================================================
 The section below creates a Todo database table with a "content" field. Try
@@ -34,19 +39,19 @@ const schema = a.schema({
     .model({
       id: a.id(),
       userEmail: a.email().required(),
-      scheduleDate: a.date().required(),
+      scheduleDate: a.string().required(),
       message: a.string().required(),
       recipients: a.string().array().required(), // Array of recipient emails
       // TODO add file/img code
       // fileKeys: a.string().array(), // Store S3 file keys as an array of strings
       identityId: a.string(), // Cognito identity ID
-      messageStatus: a.enum(["SCHEDULED", "SENT"]),
+      messageStatus: a.enum([SCHEDULED, SENT]),
       fileLocation: a.string().array(), // S3 file location
     })
     // userEmail is primary key and scheduleDate is secondary key
-    .identifier(["userEmail", "scheduleDate"])
+    .identifier([USER_EMAIL, SCHEDULE_DATE])
     // FOR GSI
-    .secondaryIndexes((index) => [index("scheduleDate")])
+    .secondaryIndexes((index) => [index(SCHEDULE_DATE)])
     .authorization((allow) => [allow.owner()]) // Ensuring only the owner can access their messages
 });
 
@@ -65,7 +70,7 @@ export const data = defineData({
   logging: {
     excludeVerboseContent: false,
     fieldLogLevel: 'all',
-    retention: '1 month'
+    retention: '3 months'
   }
 });
 

@@ -14,6 +14,7 @@ import { remove } from 'aws-amplify/storage';
 import type { Schema } from "../amplify/data/resource";
 import { getUrl } from 'aws-amplify/storage';
 import { fetchUserAttributes } from 'aws-amplify/auth';
+import { processFile } from '../utils/utils';
 
 
 
@@ -111,7 +112,11 @@ function UploadForm() {
     
         return (
           <div>
+<<<<<<< HEAD
             <h3>Uploaded Images</h3>
+=======
+            <h3 style={{ marginTop: '1rem' }}><u>Images</u></h3>
+>>>>>>> ed0ca7d (add mail .py script and fix some front end bugs)
             {loading ? (
               <p>Loading files...</p>
             ) : imageFilePaths.length > 0 ? (
@@ -238,12 +243,18 @@ function UploadForm() {
                     // path={({ identityId }) => `uploads/${userEmail}/${scheduleDate}/`}
                     path={({ identityId }) => `uploads/${identityId}/${userEmail}/form_uploads/`}
                     // path=`uploads/${userEmail}/${scheduleDate}/${file.name}`
+<<<<<<< HEAD
                     autoUpload={false}
                     maxFileCount={5}
+=======
+                    autoUpload={true}
+                    maxFileCount={10}
+>>>>>>> ed0ca7d (add mail .py script and fix some front end bugs)
                     isResumable
+                    processFile={processFile}
                     // ref={ref}
                     // TODO: add check for total file size since Amazon SES has a max email size of 40MB
-                    // maxFileSize={7500000} // about 7.5MB since Amazon SES max email size is 40MB
+                    maxFileSize={5000000} // about 5MB since Amazon SES max email size is 40MB
                     displayText={{
                     // some text are plain strings
                     dropFilesText: 'Drop files here or',
