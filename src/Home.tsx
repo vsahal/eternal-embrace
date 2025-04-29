@@ -11,7 +11,7 @@ const client = generateClient<Schema>();
 function Home() {
   const { user, signOut } = useAuthenticator();
   const [scheduledMessages, setScheduledMessages] = useState<Array<Schema["ScheduledMessage"]["type"]>>([]);
-  const [selectedMessage, setSelectedMessage] = useState<any | null>(null); // Track the selected message for deletion
+  const [selectedMessage, setSelectedMessage] = useState<ScheduledMessage | null>(null); // Track the selected message for deletion
   const [isConfirmationOpen, setIsConfirmationOpen] = useState(false); // Track if the confirmation pop-up is open
   const navigate = useNavigate();
 
@@ -30,7 +30,7 @@ function Home() {
     setIsConfirmationOpen(false); // Close the confirmation dialog after deletion
   };
 
-  const openConfirmation = (messageObj: any) => {
+  const openConfirmation = (messageObj: ScheduledMessage) => {
     // Set the selected message for deletion and open the confirmation dialog
     setSelectedMessage(messageObj);
     setIsConfirmationOpen(true);
@@ -52,7 +52,7 @@ function Home() {
   }
 
   async function deleteScheduledMessageS3(message: ScheduledMessage) {
-    console.log(`Deleting S3 files for ${message}`);
+    console.log(`Deleting S3 files for ${JSON.stringify(message)}`);
     const filePath = `uploads/${message.identityId}/${message.userEmail}/${message.scheduleDate}/`
     const allFiles = await list({
       path: filePath,
@@ -67,7 +67,7 @@ function Home() {
         }
       }
     } catch (error) {
-      console.error(`Error deleting S3 files for message ${message}`, error);
+      console.error(`Error deleting S3 files for message ${JSON.stringify(message)}`, error);
     }
   }
 
@@ -85,7 +85,7 @@ function Home() {
       </div>
 
       {/* Table for SCHEDULED messages */}
-      <h1>{user?.signInDetails?.loginId}'s Scheduled Messages</h1>
+      <h1>{`${user?.signInDetails?.loginId}'s Scheduled Messages`}</h1>
       <table style={{ width: "100%", borderCollapse: "collapse", marginTop: "20px" }}>
         <thead>
           <tr style={{ borderBottom: "2px solid black" }}>
@@ -117,7 +117,7 @@ function Home() {
       <div style={{ marginBottom: "80px" }}></div>
 
       {/* Table for SENT messages */}
-      <h1>{user?.signInDetails?.loginId}'s Sent Messages</h1>
+      <h1>{`${user?.signInDetails?.loginId}'s Sent Messages`}</h1>
       <table style={{ width: "100%", borderCollapse: "collapse", marginTop: "20px" }}>
         <thead>
           <tr style={{ borderBottom: "2px solid black" }}>

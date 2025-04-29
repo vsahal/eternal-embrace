@@ -7,8 +7,8 @@ backend:
         - echo "Clearing environment cache..."
         - rm -rf node_modules/ .npm/
 
-        - nvm install 18
-        - nvm use 18
+        - nvm install 20
+        - nvm use 20
 
         # Verify Node.js version
         - node --version

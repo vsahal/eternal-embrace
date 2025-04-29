@@ -1,12 +1,9 @@
 import { useAuthenticator } from "@aws-amplify/ui-react";
 import { FileUploader, StorageImage } from "@aws-amplify/ui-react-storage";
 import "@aws-amplify/ui-react/styles.css";
-import { fetchAuthSession, getCurrentUser } from 'aws-amplify/auth';
-import { generateClient } from "aws-amplify/data";
 import { getUrl, list, remove } from 'aws-amplify/storage';
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import type { Schema } from "../amplify/data/resource";
 import { processFile } from '../utils/utils';
 
 
@@ -15,7 +12,6 @@ function UploadForm() {
   const [userEmail, setUserEmail] = useState<string | undefined>();
   const { user } = useAuthenticator();
   const navigate = useNavigate();
-  const client = generateClient<Schema>();
   useEffect(() => {
     if (user?.signInDetails?.loginId) {
       setUserEmail(user.signInDetails.loginId);
@@ -31,9 +27,6 @@ function UploadForm() {
     useEffect(() => {
       const loadFiles = async () => {
         try {
-          const { username, userId, signInDetails } = await getCurrentUser();
-          const session = await fetchAuthSession();
-
           const result = await list({
             path: ({ identityId }) => `uploads/${identityId}/${userEmail}/form_uploads/`,
             options: { listAll: true },
