@@ -24,7 +24,6 @@ function ScheduleMessageForm() {
   const [scheduleDate, setScheduleDate] = useState(editingMessage?.scheduleDate || "");
   const [message, setMessage] = useState(editingMessage?.message || "");
   const [recipients, setRecipients] = useState(editingMessage?.recipients?.join(", ") || "");
-  const [dateError, setDateError] = useState("");
   const [emailError, setEmailError] = useState("");
   const [uniqueDateError, setUniqueDateError] = useState("");
   const [scheduledMessages, setScheduledMessages] = useState<Array<Schema["ScheduledMessage"]["type"]>>([]);
@@ -60,7 +59,7 @@ function ScheduleMessageForm() {
     parse(msg.scheduleDate, "MM-dd-yyyy", new Date())
   );
 
-  const FileGallery = ({ filePath }: { filePath: string }) => {
+  const FileGallery = () => {
     const [imageFilePaths, setImageFilePaths] = useState<string[]>([]);
     const [nonImageFilePaths, setNonImageFilePaths] = useState<string[]>([]);
     const [nonImageFileUrls, setNonImageFileUrls] = useState<string[]>([]);
@@ -452,7 +451,8 @@ function ScheduleMessageForm() {
   async function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
 
-    if (dateError || emailError) {
+    // if (dateError || emailError) {
+    if (emailError) {
       alert("Please fix all errors before submitting.");
       return;
     }
@@ -464,8 +464,8 @@ function ScheduleMessageForm() {
     }
     try {
       if (editingMessage) {
-        const exists = await checkExistingMessage(scheduleDate);
         // TODO: remove this check since we are are disabling dates using date picker
+        // const exists = await checkExistingMessage(scheduleDate);
         // if (exists) {
         //   setUniqueDateError("A message is already scheduled for this date. Edit the existing one.");
         //   return;
@@ -580,7 +580,7 @@ function ScheduleMessageForm() {
             placeholderText="Select a date"
           />
         </label>
-        {dateError && <p style={{ color: "red" }}>{dateError}</p>}
+        {/* {dateError && <p style={{ color: "red" }}>{dateError}</p>} */}
         {uniqueDateError && <p style={{ color: "red" }}>{uniqueDateError}</p>}
 
         {/* Recipients (To) Input */}
@@ -665,7 +665,7 @@ function ScheduleMessageForm() {
           <div>
             <div>
               <h2>Current Scheduled Files Uploaded</h2>
-              <FileGallery filePath={`uploads/${identityId}/${userEmail}/${scheduleDate}/`} />
+              <FileGallery />
             </div>
 
           </div>
