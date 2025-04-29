@@ -19,10 +19,12 @@ load_dotenv()
 # Constants
 DYNAMO_DB_SERVICE = "dynamodb"
 S3_SERVICE = "s3"
-SCHEDULED_MESSAGE_DB_TABLE = "ScheduledMessage-7cdasplkt5hiznbjy37rbfmv5q-NONE"
+TEST_SCHEDULED_MESSAGE_DB_TABLE = "ScheduledMessage-7cdasplkt5hiznbjy37rbfmv5q-NONE"
+PROD_SCHEDULED_MESSAGE_DB_TABLE = "ScheduledMessage-xz2rdu5k6rbijlhadwv72xp7yy-NONE"
 SCHEDULED_MESSAGE_DB_TABLE_DATE_INDEX = "scheduledMessagesByScheduleDate"
 SCHEDULE_DATE = "scheduleDate"
-SCHEDULED_MESSAGES_BUCKET_NAME = "amplify-amplifyvitereactt-scheduledmessagesfilesbu-qmnymritgqog"
+TEST_SCHEDULED_MESSAGES_BUCKET_NAME = "amplify-amplifyvitereactt-scheduledmessagesfilesbu-qmnymritgqog"
+PROD_SCHEDULED_MESSAGES_BUCKET_NAME = "amplify-d3344kfml0wmg7-ma-scheduledmessagesfilesbu-n6mbzxx3uste"
 ETERNAL_EMBRACE_ADMIN_EMAIL = "admin@eternal-embrace-corp.com"
 DO_NOT_REPLY = "DO_NOT_REPLY"
 EMAIL_RECIPIENT = "LOVED_ONE"
@@ -65,7 +67,6 @@ logging.basicConfig(
 
 
 # TODO
-# set up os.environ vars on ec2 and make it run at midnight + 1min?
 # Refactor code, make it cleaner and loggging
 # how to deal with exceptions and stuff!!!!
 # if something fails how can I log this correctly so that I can redrive? - add to another log file?
@@ -241,14 +242,12 @@ def mailer_send(mailer, email_to, email_subject, email_html, email_plaintext, s3
 
 def main():
     #2
-    # TODO update this to correct date format as seen in DB and s3
     today = date.today().strftime("%m-%d-%Y")
-    today = "05-03-2025"
     logging.info(f"Running script for today's date: {today}")
 
     # set up s3 and dynamo db resources
-    s3_resource = initialize_s3_resource(SCHEDULED_MESSAGES_BUCKET_NAME)
-    dynamo_db_resource = initialize_dynamodb_resource(SCHEDULED_MESSAGE_DB_TABLE)
+    s3_resource = initialize_s3_resource(PROD_SCHEDULED_MESSAGES_BUCKET_NAME)
+    dynamo_db_resource = initialize_dynamodb_resource(PROD_SCHEDULED_MESSAGE_DB_TABLE)
 
     # Query the primary table using secondary index "scheduleDate" for entires with todays date
     response = dynamo_db_resource.query(
