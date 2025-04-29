@@ -235,6 +235,8 @@ def mailer_send(mailer, email_to, email_subject, email_html, email_plaintext, s3
         except Exception as e:
             logging.error(f"Failed to update item status in DynamoDB: {e}")
     except Exception as e:
+        # TODO: add to log which emails fail to send so we can redrive.
+        # should we also mark in DB which email addresses failed with a dict?
         logging.error(f"Failed to send email to {email_to} with error: {e}")
         return False
 
