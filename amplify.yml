@@ -5,7 +5,7 @@ backend:
       commands:
         # Clear the environment cache
         - echo "Clearing environment cache..."
-        - rm -rf node_modules/ .npm/
+        - rm -rf node_modules/ package-lock.json .npm/
 
         - nvm install 20
         - nvm use 20
@@ -13,9 +13,14 @@ backend:
         # Verify Node.js version
         - node --version
         - npm --version
+
+        # Clean cache
+        - npm cache clean --force
+
+        # Install fresh dependencies
+        - npm install
     build:
       commands:
-        - npm ci --cache .npm --prefer-offline
         - npx ampx pipeline-deploy --branch $AWS_BRANCH --app-id $AWS_APP_ID
 frontend:
   phases:
