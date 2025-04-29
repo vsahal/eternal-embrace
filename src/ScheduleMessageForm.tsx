@@ -324,7 +324,7 @@ function ScheduleMessageForm() {
           ? prevSelected.filter((selected) => selected !== file)
           : [...prevSelected, file];
 
-        console.log("Updated selectedFiles array:", updatedSelection); // 🔹 Logging the selected files
+        console.log("Updated selectedFiles array:", updatedSelection);
 
         return updatedSelection;
       });
@@ -496,7 +496,8 @@ function ScheduleMessageForm() {
           setUniqueDateError("");
         }
         // saving it to DB
-        await client.models.ScheduledMessage.create({
+        console.log("sahalv LOGGING bout to SAVE TO DB")
+        const response = await client.models.ScheduledMessage.create({
           userEmail,
           scheduleDate,
           message,
@@ -505,6 +506,7 @@ function ScheduleMessageForm() {
           identityId: identityId,
           fileLocation: [`uploads/${identityId}/${userEmail}/${scheduleDate}/`]
         });
+        console.log("sahalv LOGGING DB obj", JSON.stringify(response))
         alert("Message scheduled successfully!");
       }
 
@@ -527,7 +529,7 @@ function ScheduleMessageForm() {
         const uploadsFolder = parts[0];
         const identityId = parts[1];
         const userEmail = parts[2];
-        const formUploadString = parts[3];
+        // const formUploadString = parts[3];
         const fileName = parts[4];
 
         const destinationPath = `${uploadsFolder}/${identityId}/${userEmail}/${scheduleDate}/${fileName}`;

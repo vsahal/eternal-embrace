@@ -30,9 +30,28 @@ function Home() {
     setIsConfirmationOpen(false); // Close the confirmation dialog after deletion
   };
 
-  const openConfirmation = (messageObj: ScheduledMessage) => {
-    // Set the selected message for deletion and open the confirmation dialog
-    setSelectedMessage(messageObj);
+  // const openConfirmation = (messageObj: ScheduledMessage) => {
+  //   // Set the selected message for deletion and open the confirmation dialog
+  //   setSelectedMessage(messageObj);
+  //   setIsConfirmationOpen(true);
+  // };
+
+  const openConfirmation = (messageObj: Schema["ScheduledMessage"]["type"]) => {
+    const scheduledMessage: ScheduledMessage = {
+      id: messageObj.id ?? '',
+      userEmail: messageObj.userEmail,
+      scheduleDate: messageObj.scheduleDate,
+      message: messageObj.message,
+      recipients: (messageObj.recipients || []).filter((r): r is string => r !== null),
+      identityId: messageObj.identityId ?? '',
+      messageStatus: messageObj.messageStatus ?? '',
+      fileLocation: (messageObj.fileLocation || []).filter((r): r is string => r !== null),
+      createdAt: messageObj.createdAt,
+      updatedAt: messageObj.updatedAt,
+      owner: messageObj.owner ?? '',
+    };
+
+    setSelectedMessage(scheduledMessage);
     setIsConfirmationOpen(true);
   };
 
