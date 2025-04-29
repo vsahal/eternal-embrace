@@ -7,9 +7,8 @@ backend:
         - echo "Clearing environment cache..."
         - rm -rf node_modules/ .npm/
 
-        # Install the desired Node.js version (e.g., v20 or v22)
-        - nvm install 20 # Install Node.js v20 (use 22 if needed)
-        - nvm use 20 # Use Node.js v20
+        - nvm install 18
+        - nvm use 18
 
         # Verify Node.js version
         - node --version
