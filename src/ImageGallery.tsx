@@ -1,9 +1,7 @@
-import { useState, useEffect } from "react";
 import { StorageImage } from "@aws-amplify/ui-react-storage";
-import { list } from 'aws-amplify/storage';
-import { remove } from 'aws-amplify/storage';
-import { getCurrentUser } from "aws-amplify/auth";
-import { fetchAuthSession } from 'aws-amplify/auth';
+import { fetchAuthSession, getCurrentUser } from "aws-amplify/auth";
+import { list, remove } from 'aws-amplify/storage';
+import { useEffect, useState } from "react";
 
 interface ImageGalleryProps {
   userEmail: string;
@@ -20,7 +18,7 @@ export const ImageGallery = ({ userEmail, scheduleDate }: ImageGalleryProps) => 
       try {
         const { username, userId, signInDetails } = await getCurrentUser();
         const session = await fetchAuthSession();
-        
+
         // Load all file paths from the S3 bucket
         const result = await list({
           path: ({ identityId }) => `uploads/${identityId}/${userEmail}/${scheduleDate}/`,
@@ -28,24 +26,24 @@ export const ImageGallery = ({ userEmail, scheduleDate }: ImageGalleryProps) => 
             listAll: true,
           },
         });
-        
+
         // TODO name these variables better
         // Load image files from paths 
-        const filePaths = result.items 
+        const filePaths = result.items
           ? result.items
-              .map((item) => item.path)
-              .filter((file) => /\.(jpg|jpeg|png|gif|webp|svg)$/i.test(file)) // Filter images only
+            .map((item) => item.path)
+            .filter((file) => /\.(jpg|jpeg|png|gif|webp|svg)$/i.test(file)) // Filter images only
           : [];
         setImageFilePaths(filePaths);
-        
+
         // Load non-image files from paths
-        const otherFilePaths = result.items 
+        const otherFilePaths = result.items
           ? result.items
-              .map((item) => item.path)
-              .filter((file) => /\.(bmp|doc|docx|pdf|mp3|mp4)$/i.test(file)) // Filter images only
+            .map((item) => item.path)
+            .filter((file) => /\.(bmp|doc|docx|pdf|mp3|mp4)$/i.test(file)) // Filter images only
           : [];
         setNonImageFilePaths(otherFilePaths);
-          
+
       } catch (error) {
         // TODO: log better
         console.error("Error loading images:", error);
@@ -57,18 +55,18 @@ export const ImageGallery = ({ userEmail, scheduleDate }: ImageGalleryProps) => 
     loadImages();
   }, [userEmail, scheduleDate]);
 
-    const handleDelete = async (filePath: string) => {
-      try {
-        //TODO use amplify API and remove file
-        await remove({
-          path: filePath
+  const handleDelete = async (filePath: string) => {
+    try {
+      //TODO use amplify API and remove file
+      await remove({
+        path: filePath
       }); // Delete from S3
-        console.log("deleted file-", filePath);
-        setImageFilePaths(imgFilePaths.filter(file => file !== filePath)); // Remove from state
-      } catch (error) {
-        console.error(`Deleting file: ${filePath}`, error);
-      }
-    };
+      console.log("deleted file-", filePath);
+      setImageFilePaths(imgFilePaths.filter(file => file !== filePath)); // Remove from state
+    } catch (error) {
+      console.error(`Deleting file: ${filePath}`, error);
+    }
+  };
 
   return (
     <div>

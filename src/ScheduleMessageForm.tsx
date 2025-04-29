@@ -488,7 +488,6 @@ function ScheduleMessageForm() {
         alert("Message updated successfully!");
         navigate("/home", { replace: true });
       } else {
-        console.log("sahalv LOGGING creating a message")
         const exists = await checkExistingMessage(scheduleDate);
         if (exists) {
           setUniqueDateError("A message is already scheduled for this date. Edit the existing one.");
@@ -518,7 +517,6 @@ function ScheduleMessageForm() {
 
 
   async function handleSelectedFiles(uploadedSelectedFiles: string[]) {
-    console.log("sahalv LOGGING in handleSelectedFiles");
 
     // Iterate over each selected file path
     for (const filePath of uploadedSelectedFiles) {
