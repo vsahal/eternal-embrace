@@ -8,7 +8,7 @@ export interface ScheduledMessage {
   recipients: string[];
   identityId: string;
   messageStatus: string;
-  fileLocation?: string[];
+  fileLocation: string[];
   createdAt: string;
   updatedAt: string;
   owner: string;
