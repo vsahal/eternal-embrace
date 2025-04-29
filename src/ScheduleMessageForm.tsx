@@ -137,7 +137,7 @@ function ScheduleMessageForm() {
     const handleDelete = async (filePath: string) => {
       try {
         await remove({ path: filePath }); // Delete from S3
-        console.log("Deleted file:", filePath);
+        console.log("Deleted file!:", filePath);
 
         // Remove from state
         setImageFilePaths((prev) => prev.filter((file) => file !== filePath));
@@ -181,6 +181,7 @@ function ScheduleMessageForm() {
                   <td>{file.split("/").pop()}</td>
                   <td>
                     <button
+                      type="button"
                       onClick={() => handleDelete(file)}
                       style={{
                         background: "red",
@@ -222,6 +223,7 @@ function ScheduleMessageForm() {
                   <td>{file.split("/").pop()}</td>
                   <td>
                     <button
+                      type="button"
                       onClick={() => handleDelete(file)}
                       style={{
                         background: "red",
@@ -451,6 +453,9 @@ function ScheduleMessageForm() {
   async function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
 
+    console.log("Uploading files to S3...", uploadedSelectedFiles);
+    handleSelectedFiles(uploadedSelectedFiles)
+
     // if (dateError || emailError) {
     if (emailError) {
       alert("Please fix all errors before submitting.");
@@ -496,7 +501,6 @@ function ScheduleMessageForm() {
           setUniqueDateError("");
         }
         // saving it to DB
-        console.log("sahalv LOGGING bout to SAVE TO DB")
         const response = await client.models.ScheduledMessage.create({
           userEmail,
           scheduleDate,
@@ -506,7 +510,7 @@ function ScheduleMessageForm() {
           identityId: identityId,
           fileLocation: [`uploads/${identityId}/${userEmail}/${scheduleDate}/`]
         });
-        console.log("sahalv LOGGING DB obj", JSON.stringify(response))
+        console.log("Item saved to DB", JSON.stringify(response))
         alert("Message scheduled successfully!");
       }
 
@@ -520,6 +524,9 @@ function ScheduleMessageForm() {
 
   async function handleSelectedFiles(uploadedSelectedFiles: string[]) {
 
+    if (uploadedSelectedFiles.length === 0) {
+      return;
+    }
     // Iterate over each selected file path
     for (const filePath of uploadedSelectedFiles) {
       try {
@@ -612,6 +619,7 @@ function ScheduleMessageForm() {
 
         {/* Message Input */}
         <label>
+          Message:
           <textarea
             value={message}
             onChange={(e) => setMessage(DOMPurify.sanitize(e.target.value))}
@@ -674,18 +682,10 @@ function ScheduleMessageForm() {
         )}
 
         {/* Buttons */}
-        <div style={{ display: "flex", justifyContent: "space-between", marginTop: "10px" }}>
-          <button type="button" onClick={() => navigate("/home", { replace: true })} style={{ padding: "10px 20px" }}>
-            Back
-          </button>
-          <button type="submit" style={{ padding: "10px 20px" }}>
-            {editingMessage ? "Update" : "Submit"}
-          </button>
-        </div>
         <div>
           {/* Forcing user to select date first before they can upload files */}
           <div style={{ position: "absolute", top: "10px", right: "10px" }}>
-            <button onClick={() => navigate("/home")}>Home</button>
+            <button type="button" onClick={() => navigate("/home")}>Home</button>
           </div>
         </div>
         {message && (
@@ -693,10 +693,18 @@ function ScheduleMessageForm() {
             <h1>File Browser</h1>
             <UploadFileGallery />
             <div>
-              <button
+              {/* <button
                 style={{ marginTop: "20px" }}
                 onClick={() => handleSelectedFiles(uploadedSelectedFiles)}>
                 Upload Selected Files and Submit
+              </button> */}
+            </div>
+            <div style={{ display: "flex", justifyContent: "space-between", marginTop: "10px" }}>
+              <button type="button" onClick={() => navigate("/home", { replace: true })} style={{ padding: "10px 20px" }}>
+                Back
+              </button>
+              <button type="submit" style={{ padding: "10px 20px" }}>
+                {editingMessage ? "Update" : "Submit"}
               </button>
             </div>
           </div>
