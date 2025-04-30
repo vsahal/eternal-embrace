@@ -4,7 +4,7 @@ import "@aws-amplify/ui-react/styles.css";
 import { fetchAuthSession } from 'aws-amplify/auth';
 import { generateClient } from "aws-amplify/data";
 import { copy, getUrl, list, remove } from 'aws-amplify/storage';
-import { format, parse } from "date-fns";
+import { format, isValid, parse } from "date-fns";
 import DOMPurify from 'dompurify';
 import React, { useEffect, useState } from "react";
 import DatePicker from "react-datepicker";
@@ -21,7 +21,13 @@ function ScheduleMessageForm() {
 
   const editingMessage = location.state?.messageObj || null;
   const [userEmail, setUserEmail] = useState<string | undefined>();
-  const [scheduleDate, setScheduleDate] = useState(editingMessage?.scheduleDate || "");
+  const [scheduleDate, setScheduleDate] = useState<Date | null>(() => {
+    if (editingMessage?.scheduleDate) {
+      const parsedDate = parse(editingMessage.scheduleDate, "MM-dd-yyyy", new Date());
+      return isValid(parsedDate) ? parsedDate : null;
+    }
+    return null;
+  });
   const [message, setMessage] = useState(editingMessage?.message || "");
   const [recipients, setRecipients] = useState(editingMessage?.recipients?.join(", ") || "");
   const [emailError, setEmailError] = useState("");
@@ -29,7 +35,6 @@ function ScheduleMessageForm() {
   const [scheduledMessages, setScheduledMessages] = useState<Array<Schema["ScheduledMessage"]["type"]>>([]);
   const [identityId, setIdentityId] = useState<string | undefined>();
   const [uploadedSelectedFiles, setUploadedSelectedFiles] = useState<string[]>([]); // State for selected files
-  // const [formattedScheduleDate, setFormattedScheduleDate] = useState<string>(editingMessage?.scheduleDate || "");
   const [formattedScheduleDate, setFormattedScheduleDate] = useState<string>("");
 
 
@@ -58,9 +63,22 @@ function ScheduleMessageForm() {
     });
   }, []);
 
+
   useEffect(() => {
     if (editingMessage?.scheduleDate) {
-      setFormattedScheduleDate(editingMessage.scheduleDate);
+      const parsedDate = parse(editingMessage.scheduleDate, "MM-dd-yyyy", new Date());
+
+      if (isValid(parsedDate)) {
+        setScheduleDate(parsedDate);
+        setFormattedScheduleDate(editingMessage.scheduleDate);
+      } else {
+        console.error("Invalid scheduleDate format:", editingMessage.scheduleDate);
+        setScheduleDate(null);
+        setFormattedScheduleDate("");
+      }
+    } else {
+      setScheduleDate(null);
+      setFormattedScheduleDate("");
     }
   }, [editingMessage]);
 
