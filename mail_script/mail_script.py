@@ -215,7 +215,8 @@ def mailer_send(mailer, email_to, email_subject, email_html, email_plaintext, s3
         logging.info(f"Sent email Response: {response}")
 
         try:
-            # TODO if response is 200 or 202 then only mark
+            # TODO if response is 200 or 202 then only mark once ALL people have a 200
+            # right now it marks as successfull as soon as one email is sent
             # Update item status as SENT if successful
             time_updated = datetime.now(timezone.utc).isoformat(timespec='milliseconds').replace('+00:00', 'Z')
 
