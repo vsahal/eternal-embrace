@@ -29,7 +29,8 @@ function ScheduleMessageForm() {
   const [scheduledMessages, setScheduledMessages] = useState<Array<Schema["ScheduledMessage"]["type"]>>([]);
   const [identityId, setIdentityId] = useState<string | undefined>();
   const [uploadedSelectedFiles, setUploadedSelectedFiles] = useState<string[]>([]); // State for selected files
-  const [formattedScheduleDate, setFormattedScheduleDate] = useState<string>(editingMessage?.scheduleDate || "");
+  // const [formattedScheduleDate, setFormattedScheduleDate] = useState<string>(editingMessage?.scheduleDate || "");
+  const [formattedScheduleDate, setFormattedScheduleDate] = useState<string>("");
 
 
   async function fetchIdentityId() {
@@ -56,6 +57,12 @@ function ScheduleMessageForm() {
       next: (data) => setScheduledMessages([...data.items]),
     });
   }, []);
+
+  useEffect(() => {
+    if (editingMessage?.scheduleDate) {
+      setFormattedScheduleDate(editingMessage.scheduleDate);
+    }
+  }, [editingMessage]);
 
   const disabledDates = scheduledMessages.map((msg) =>
     parse(msg.scheduleDate, "MM-dd-yyyy", new Date())
