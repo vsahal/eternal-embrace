@@ -29,6 +29,8 @@ function ScheduleMessageForm() {
   const [scheduledMessages, setScheduledMessages] = useState<Array<Schema["ScheduledMessage"]["type"]>>([]);
   const [identityId, setIdentityId] = useState<string | undefined>();
   const [uploadedSelectedFiles, setUploadedSelectedFiles] = useState<string[]>([]); // State for selected files
+  const [formattedScheduleDate, setFormattedScheduleDate] = useState<string>(editingMessage?.scheduleDate || "");
+
 
   async function fetchIdentityId() {
     try {
@@ -59,6 +61,17 @@ function ScheduleMessageForm() {
     parse(msg.scheduleDate, "MM-dd-yyyy", new Date())
   );
 
+  // When user picks a date
+  const handleDateChange = (date: Date | null) => {
+    if (date) {
+      setScheduleDate(date);
+      setFormattedScheduleDate(format(date, "MM-dd-yyyy"));
+    } else {
+      setScheduleDate(null);
+      setFormattedScheduleDate("");
+    }
+  };
+
   const FileGallery = () => {
     const [imageFilePaths, setImageFilePaths] = useState<string[]>([]);
     const [nonImageFilePaths, setNonImageFilePaths] = useState<string[]>([]);
@@ -66,7 +79,8 @@ function ScheduleMessageForm() {
     const [loading, setLoading] = useState<boolean>(true);
 
     useEffect(() => {
-      const filePath = `uploads/${identityId}/${userEmail}/${scheduleDate}/`;
+      // const filePath = `uploads/${identityId}/${userEmail}/${scheduleDate}/`;
+      const filePath = `uploads/${identityId}/${userEmail}/${formattedScheduleDate}/`;
       const loadFiles = async () => {
         try {
           const result = await list({
@@ -269,7 +283,7 @@ function ScheduleMessageForm() {
             .filter((file) => /\.(jpg|jpeg|png)$/i.test(file));
 
           setUploadedImageFilePaths(imageFiles);
-          console.log("Image paths: ", imageFiles);
+          console.log("Uploaded image paths: ", imageFiles);
 
           // Filter non-image files
           const otherFiles = result.items
@@ -277,7 +291,7 @@ function ScheduleMessageForm() {
             .filter((file) => /\.(doc|docx|pdf|mp4)$/i.test(file));
 
           setUploadedNonImageFilePaths(otherFiles);
-          console.log("Non-image file paths: ", otherFiles);
+          console.log("Uploaded non-image file paths: ", otherFiles);
 
           // Fetch storage URLs in parallel
           const fileUrls = await Promise.all(
@@ -484,16 +498,20 @@ function ScheduleMessageForm() {
         await client.models.ScheduledMessage.update({
           id: editingMessage.id,
           userEmail,
-          scheduleDate,
+          // scheduleDate,
+          scheduleDate: formattedScheduleDate,
           message,
           recipients: recipients.split(",").map((email: string) => email.trim()),
-          fileLocation: [`uploads/${identityId}/${userEmail}/${scheduleDate}/`]
+          // fileLocation: [`uploads/${identityId}/${userEmail}/${scheduleDate}/`]
+          fileLocation: [`uploads/${identityId}/${userEmail}/${formattedScheduleDate}/`]
         });
 
         alert("Message updated successfully!");
         navigate("/home", { replace: true });
       } else {
-        const exists = await checkExistingMessage(scheduleDate);
+        //TODO: fix, this may not be needed anymore since we disbale dates.
+        // const exists = await checkExistingMessage(scheduleDate);
+        const exists = await checkExistingMessage(formattedScheduleDate);
         if (exists) {
           setUniqueDateError("A message is already scheduled for this date. Edit the existing one.");
           return;
@@ -503,12 +521,14 @@ function ScheduleMessageForm() {
         // saving it to DB
         const response = await client.models.ScheduledMessage.create({
           userEmail,
-          scheduleDate,
+          // scheduleDate,
+          scheduleDate: formattedScheduleDate,
           message,
           messageStatus: "SCHEDULED",
           recipients: recipients.split(",").map((email: string) => email.trim()),
           identityId: identityId,
-          fileLocation: [`uploads/${identityId}/${userEmail}/${scheduleDate}/`]
+          fileLocation: [`uploads/${identityId}/${userEmail}/${formattedScheduleDate}/`]
+          // fileLocation: [`uploads/${identityId}/${userEmail}/${scheduleDate}/`]
         });
         console.log("Item saved to DB", JSON.stringify(response))
         alert("Message scheduled successfully!");
@@ -539,7 +559,8 @@ function ScheduleMessageForm() {
         // const formUploadString = parts[3];
         const fileName = parts[4];
 
-        const destinationPath = `${uploadsFolder}/${identityId}/${userEmail}/${scheduleDate}/${fileName}`;
+        // const destinationPath = `${uploadsFolder}/${identityId}/${userEmail}/${scheduleDate}/${fileName}`;
+        const destinationPath = `${uploadsFolder}/${identityId}/${userEmail}/${formattedScheduleDate}/${fileName}`;
 
         // Perform the copy operation
         const response = await copy({
@@ -571,7 +592,7 @@ function ScheduleMessageForm() {
             Some dates may be disabled because messages are already scheduled for those dates.
           </p>
           Schedule Date:
-          <DatePicker
+          {/* <DatePicker
             showIcon
             selected={scheduleDate}
             onChange={(date) => {
@@ -582,6 +603,19 @@ function ScheduleMessageForm() {
                 setScheduleDate(null);
               }
             }}
+            minDate={new Date(Date.now() + 86400000)}
+            isClearable={true}
+            dateFormat="MM/dd/yyyy"
+            excludeDates={disabledDates}
+            placeholderText="Select a date"
+          /> */}
+          <DatePicker
+            showIcon
+            selected={scheduleDate}
+            // onChange={(date) => {
+            //   setScheduleDate(date); // store raw Date object
+            // }}
+            onChange={handleDateChange}
             minDate={new Date(Date.now() + 86400000)}
             isClearable={true}
             dateFormat="MM/dd/yyyy"
@@ -645,7 +679,8 @@ function ScheduleMessageForm() {
                 'image/png',
                 'video/*',
               ]}
-              path={({ identityId }) => `uploads/${identityId}/${userEmail}/${scheduleDate}/`}
+              // path={({ identityId }) => `uploads/${identityId}/${userEmail}/${scheduleDate}/`}
+              path={({ identityId }) => `uploads/${identityId}/${userEmail}/${formattedScheduleDate}/`}
               autoUpload={true}
               maxFileCount={5}
               maxFileSize={5000000} // 5MB
