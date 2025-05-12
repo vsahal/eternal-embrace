@@ -30,12 +30,6 @@ function Home() {
     setIsConfirmationOpen(false); // Close the confirmation dialog after deletion
   };
 
-  // const openConfirmation = (messageObj: ScheduledMessage) => {
-  //   // Set the selected message for deletion and open the confirmation dialog
-  //   setSelectedMessage(messageObj);
-  //   setIsConfirmationOpen(true);
-  // };
-
   const openConfirmation = (messageObj: Schema["ScheduledMessage"]["type"]) => {
     const scheduledMessage: ScheduledMessage = {
       id: messageObj.id ?? '',
@@ -98,6 +92,9 @@ function Home() {
       </div>
       <div style={{ position: "absolute", top: "60px", right: "10px" }}>
         <button onClick={() => navigate("/schedule")}>Schedule a Message</button>
+      </div>
+      <div style={{ position: "absolute", top: "110px", right: "10px" }}>
+        <button onClick={() => navigate("/dates")}>Add Significant Dates</button>
       </div>
       <div style={{ position: "absolute", top: "10px", left: "10px" }}>
         <button onClick={signOut}>Sign out</button>

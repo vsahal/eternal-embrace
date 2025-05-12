@@ -36,7 +36,8 @@ function ScheduleMessageForm() {
   const [identityId, setIdentityId] = useState<string | undefined>();
   const [uploadedSelectedFiles, setUploadedSelectedFiles] = useState<string[]>([]); // State for selected files
   const [formattedScheduleDate, setFormattedScheduleDate] = useState<string>("");
-
+  const [anySignificantDates, setAnySignificantDates] = useState<boolean>(false);
+  const [significantDates, setSignificantDates] = useState<Array<Schema["SignificantDates"]["type"]>>([]);
 
   async function fetchIdentityId() {
     try {
@@ -62,6 +63,16 @@ function ScheduleMessageForm() {
       next: (data) => setScheduledMessages([...data.items]),
     });
   }, []);
+
+  useEffect(() => {
+    client.models.SignificantDates.observeQuery().subscribe({
+      next: (data) => setSignificantDates([...data.items]),
+    });
+  }, []);
+
+  useEffect(() => {
+    setAnySignificantDates(significantDates.length > 0);
+  }, [significantDates]);
 
 
   useEffect(() => {
@@ -508,15 +519,6 @@ function ScheduleMessageForm() {
     }
     try {
       if (editingMessage) {
-        // TODO: remove this check since we are are disabling dates using date picker
-        // const exists = await checkExistingMessage(scheduleDate);
-        // if (exists) {
-        //   setUniqueDateError("A message is already scheduled for this date. Edit the existing one.");
-        //   return;
-        // } else {
-        //   setUniqueDateError("");
-        // }
-        // get session for itentityId (might not even need it since we are editing and updated)
         const session = await fetchAuthSession();
         const identityId = session.identityId;
 
@@ -610,40 +612,56 @@ function ScheduleMessageForm() {
   return (
     <main>
       <h1>{editingMessage ? "Edit Scheduled Message" : "Schedule a Message"}</h1>
-
+      {/* Only show significant dates if there are some added AND user is creating new message. 
+      Hide it for editing messages */}
+      {!editingMessage && (
+        <>
+          <h3 style={{
+            margin: 0,             // removes all default margins
+            marginBottom: "0rem" // add just a little space below
+          }}>Current Significant Dates</h3>
+          {anySignificantDates ? (
+            <ul>
+              {significantDates
+                .sort(
+                  (a, b) =>
+                    new Date(a.significantDate as string).getTime() -
+                    new Date(b.significantDate as string).getTime()
+                )
+                .map((item) => (
+                  <li
+                    key={item.significantDate}
+                    style={{
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "center",
+                      padding: "10px 10px",
+                    }}
+                  >
+                    <span>
+                      {item.significantDate}: {item.description}
+                    </span>
+                  </li>
+                ))}
+            </ul>
+          ) : (
+            <p style={{ fontStyle: "italic" }}>No significant dates found.</p>
+          )}
+        </>
+      )}
       <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
         <label>
           <p style={{ fontSize: "0.85rem", color: "#555", marginTop: "5px" }}>
             Some dates may be disabled because messages are already scheduled for those dates.
           </p>
           Schedule Date:
-          {/* <DatePicker
-            showIcon
-            selected={scheduleDate}
-            onChange={(date) => {
-              if (date) {
-                const formattedDate = format(date, "MM-dd-yyyy");
-                setScheduleDate(formattedDate);
-              } else {
-                setScheduleDate(null);
-              }
-            }}
-            minDate={new Date(Date.now() + 86400000)}
-            isClearable={true}
-            dateFormat="MM/dd/yyyy"
-            excludeDates={disabledDates}
-            placeholderText="Select a date"
-          /> */}
           <DatePicker
             showIcon
             selected={scheduleDate}
-            // onChange={(date) => {
-            //   setScheduleDate(date); // store raw Date object
-            // }}
             onChange={handleDateChange}
             minDate={new Date(Date.now() + 86400000)}
             isClearable={true}
-            dateFormat="MM/dd/yyyy"
+            dateFormat="MM-dd-yyyy"
             excludeDates={disabledDates}
             placeholderText="Select a date"
           />

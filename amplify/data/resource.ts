@@ -3,6 +3,7 @@ const SCHEDULED = "SCHEDULED";
 const SENT = "SENT";
 const USER_EMAIL = "userEmail"
 const SCHEDULE_DATE = "scheduleDate"
+const SIGNIFICANT_DATE = "significantDate"
 
 
 /*== STEP 1 ===============================================================
@@ -35,6 +36,7 @@ specifies that any user authenticated via an API key can "create", "read",
 // since whenever this schema is updated all entries are deleted.
 // need to make this flexible
 const schema = a.schema({
+  // DB for storing user's scheduled messages
   ScheduledMessage: a
     .model({
       id: a.id(),
@@ -52,7 +54,34 @@ const schema = a.schema({
     .identifier([USER_EMAIL, SCHEDULE_DATE])
     // FOR GSI
     .secondaryIndexes((index) => [index(SCHEDULE_DATE)])
-    .authorization((allow) => [allow.owner()]) // Ensuring only the owner can access their messages
+    .authorization((allow) => [allow.owner()]), // Ensuring only the owner can access their messages
+    
+    // DB significant dates
+    SignificantDates: a
+    .model({
+      id: a.id(),
+      userEmail: a.email().required(),
+      significantDate: a.string().required(),
+      description: a.string().required(),
+      identityId: a.string(), // Cognito identity ID
+    })
+    .identifier([USER_EMAIL, SIGNIFICANT_DATE])
+    .secondaryIndexes((index) => [index(USER_EMAIL)])
+    .authorization((allow) => [allow.owner()]), // Ensuring only the owner can access their messages
+
+    // TODO
+    // File description DB
+    // FileDescription: a
+    // .model({
+    //   id: a.id(),
+    //   userEmail: a.email().required(),
+    //   fileKey: a.string().required(), // S3 file key
+    //   fileDescription: a.string().required(),
+    //   identityId: a.string(), // Cognito identity ID
+    // })
+    // .identifier([USER_EMAIL])
+    // .authorization((allow) => [allow.owner()]), // Ensuring only the owner can access their messages
+      
 });
 
 
