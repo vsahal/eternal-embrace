@@ -46,7 +46,7 @@ const FileGallery: React.FC<FileGalleryProps> = ({
         identityId,
       });
       console.log(`Description saved:`, response);
-      alert(`Description saved for ${filename}`);
+      alert(`Description saved!`);
     } catch (error) {
       console.error('Error saving description:', error);
     }

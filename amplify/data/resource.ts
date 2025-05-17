@@ -78,6 +78,7 @@ const schema = a.schema({
       fileDescription: a.string().required(),
       fileType: a.string(), // e.g., "image/jpeg", "application/pdf"
       identityId: a.string(), // Cognito identity ID
+      fileSize: a.string(), // Size of the file in bytes
     })
     .identifier([USER_EMAIL, FILE_PATH])
     .secondaryIndexes(index => [index(USER_EMAIL)])
