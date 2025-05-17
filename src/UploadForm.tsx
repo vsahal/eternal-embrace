@@ -16,7 +16,7 @@ function UploadForm() {
   const [identityId, setIdentityId] = useState<string | undefined>();
   const [imageDescriptions, setImageDescriptions] = useState<Record<string, string>>({});
   const [nonImageDescriptions, setNonImageDescriptions] = useState<Record<string, string>>({});
-  const [fileDescription, setFileDescription] = useState<Array<Schema['FileDescription']['type']>>([]);
+  const [fileDescription, setFileDescription] = useState<Array<Schema['FileDescriptions']['type']>>([]);
   const client = generateClient<Schema>();
 
   useEffect(() => {
@@ -49,7 +49,7 @@ function UploadForm() {
   }, [userEmail]);
 
   useEffect(() => {
-    client.models.FileDescription.observeQuery().subscribe({
+    client.models.FileDescriptions.observeQuery().subscribe({
       next: data => {
         setFileDescription([...data.items]);
 
@@ -100,7 +100,7 @@ function UploadForm() {
             // ensure identityId and userEmail are defined
             if (!identityId || !userEmail || !key) return;
             const isImageFileType = isImageFile(key);
-            client.models.FileDescription.create({
+            client.models.FileDescriptions.create({
               userEmail: userEmail,
               filePath: key,
               fileDescription: '',

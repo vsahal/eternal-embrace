@@ -70,7 +70,7 @@ const schema = a.schema({
     .authorization(allow => [allow.owner()]), // Ensuring only the owner can access their messages
 
   // DB for file descriptions
-  FileDescription: a
+  FileDescriptions: a
     .model({
       id: a.id(),
       userEmail: a.email().required(),
