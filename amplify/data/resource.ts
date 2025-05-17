@@ -1,10 +1,10 @@
-import { type ClientSchema, a, defineData } from "@aws-amplify/backend";
-const SCHEDULED = "SCHEDULED";
-const SENT = "SENT";
-const USER_EMAIL = "userEmail"
-const SCHEDULE_DATE = "scheduleDate"
-const SIGNIFICANT_DATE = "significantDate"
-
+import { type ClientSchema, a, defineData } from '@aws-amplify/backend';
+const SCHEDULED = 'SCHEDULED';
+const SENT = 'SENT';
+const USER_EMAIL = 'userEmail';
+const SCHEDULE_DATE = 'scheduleDate';
+const SIGNIFICANT_DATE = 'significantDate';
+const FILE_PATH = 'filePath';
 
 /*== STEP 1 ===============================================================
 The section below creates a Todo database table with a "content" field. Try
@@ -53,11 +53,11 @@ const schema = a.schema({
     // userEmail is primary key and scheduleDate is secondary key
     .identifier([USER_EMAIL, SCHEDULE_DATE])
     // FOR GSI
-    .secondaryIndexes((index) => [index(SCHEDULE_DATE)])
-    .authorization((allow) => [allow.owner()]), // Ensuring only the owner can access their messages
-    
-    // DB significant dates
-    SignificantDates: a
+    .secondaryIndexes(index => [index(SCHEDULE_DATE)])
+    .authorization(allow => [allow.owner()]), // Ensuring only the owner can access their messages
+
+  // DB significant dates
+  SignificantDates: a
     .model({
       id: a.id(),
       userEmail: a.email().required(),
@@ -66,32 +66,30 @@ const schema = a.schema({
       identityId: a.string(), // Cognito identity ID
     })
     .identifier([USER_EMAIL, SIGNIFICANT_DATE])
-    .secondaryIndexes((index) => [index(USER_EMAIL)])
-    .authorization((allow) => [allow.owner()]), // Ensuring only the owner can access their messages
+    .secondaryIndexes(index => [index(USER_EMAIL)])
+    .authorization(allow => [allow.owner()]), // Ensuring only the owner can access their messages
 
-    // TODO
-    // File description DB
-    // FileDescription: a
-    // .model({
-    //   id: a.id(),
-    //   userEmail: a.email().required(),
-    //   fileKey: a.string().required(), // S3 file key
-    //   fileDescription: a.string().required(),
-    //   identityId: a.string(), // Cognito identity ID
-    // })
-    // .identifier([USER_EMAIL])
-    // .authorization((allow) => [allow.owner()]), // Ensuring only the owner can access their messages
-      
+  // DB for file descriptions
+  FileDescription: a
+    .model({
+      id: a.id(),
+      userEmail: a.email().required(),
+      filePath: a.string().required(), // S3 file key
+      fileDescription: a.string().required(),
+      fileType: a.string(), // e.g., "image/jpeg", "application/pdf"
+      identityId: a.string(), // Cognito identity ID
+    })
+    .identifier([USER_EMAIL, FILE_PATH])
+    .secondaryIndexes(index => [index(USER_EMAIL)])
+    .authorization(allow => [allow.owner()]), // Ensuring only the owner can access their messages
 });
-
-
 
 export type Schema = ClientSchema<typeof schema>;
 
 export const data = defineData({
   schema,
   authorizationModes: {
-    defaultAuthorizationMode: "userPool",
+    defaultAuthorizationMode: 'userPool',
     apiKeyAuthorizationMode: {
       expiresInDays: 30,
     },
@@ -99,10 +97,9 @@ export const data = defineData({
   logging: {
     excludeVerboseContent: false,
     fieldLogLevel: 'all',
-    retention: '3 months'
-  }
+    retention: '3 months',
+  },
 });
-
 
 /*== STEP 2 ===============================================================
 Go to your frontend source code. From your client-side code, generate a

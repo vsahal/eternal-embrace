@@ -4,6 +4,4 @@
 
 https://www.eternal-embrace-corp.com/
 
-
-
 ![eternal_embrace_v1.png](public/eternal_embrace_v1.png)

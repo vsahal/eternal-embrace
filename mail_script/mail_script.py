@@ -109,8 +109,6 @@ def initialize_dynamodb_resource(dynamodb_table):
 def download_s3_files(s3_resource, identityId, userEmail, scheduleDate):
 
     #5 
-    # s3://amplify-amplifyvitereactt-scheduledmessagesfilesbu-qmnymritgqog/uploads/us-east-1:e349a6b9-5073-c655-a2ef-44b062d503e7/mogli3000@gmail.com/2025-02-21/BoardingPass.pdf
-
     logging.info(f"Downloading files from S3 for identityId: {identityId} and scheduleDate: {scheduleDate}.")
     # Download each file
     try:

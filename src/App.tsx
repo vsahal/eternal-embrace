@@ -1,8 +1,8 @@
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
-import Dates from "./Dates";
-import Home from "./Home";
-import ScheduleMessageForm from "./ScheduleMessageForm";
-import UploadForm from "./UploadForm";
+import Dates from './Dates';
+import Home from './Home';
+import ScheduleMessageForm from './ScheduleMessageForm';
+import UploadForm from './UploadForm';
 
 function App() {
   return (
@@ -14,8 +14,7 @@ function App() {
         <Route path="/dates" element={<Dates />} />
       </Routes>
     </BrowserRouter>
-
-  )
+  );
 }
 
 export default App;

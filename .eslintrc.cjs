@@ -4,7 +4,8 @@ module.exports = {
     'eslint:recommended',
     'plugin:react/recommended',
     'plugin:@typescript-eslint/recommended',
-    'plugin:react-hooks/recommended'
+    'plugin:react-hooks/recommended',
+    'prettier',
   ],
   plugins: ['react', '@typescript-eslint', 'react-hooks'],
   env: {
@@ -29,6 +30,8 @@ module.exports = {
     'react/react-in-jsx-scope': 'off', // Not needed for React 17+
     '@typescript-eslint/no-unused-vars': ['warn'],
     'react/prop-types': 'off', // if you're using TypeScript for props
+
+    indent: ['error', 2],
+    '@typescript-eslint/indent': ['error', 2],
   },
 };
-
