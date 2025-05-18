@@ -13,7 +13,6 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import type { Schema } from '../amplify/data/resource';
 import { processFile } from '../utils/utils';
 
-// TODO: FileGallery was refactored and check how we can leverage in other place too since its used in schedule form.
 // TODO: add file descriptions here as well and DB issue
 function ScheduleMessageForm() {
   const { user } = useAuthenticator();
