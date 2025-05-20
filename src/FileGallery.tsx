@@ -12,8 +12,8 @@ const client = generateClient<Schema>();
 const FileGallery: React.FC<FileGalleryProps> = ({
   userEmail,
   identityId,
-  imageDescriptions,
-  nonImageDescriptions,
+  // imageDescriptions,
+  // nonImageDescriptions,
   setImageDescriptions,
   setNonImageDescriptions,
   isDeleteEnabled,
@@ -31,26 +31,27 @@ const FileGallery: React.FC<FileGalleryProps> = ({
     }
   };
 
-  const handleSubmitDescription = async (filename: string) => {
-    if (!userEmail || !identityId) {
-      console.error('userEmail or identityId is missing.');
-      return;
-    }
-    const description = isImageFile(filename) ? imageDescriptions[filename] : nonImageDescriptions[filename];
+  // TODO: Add later
+  // const handleSubmitDescription = async (filename: string) => {
+  //   if (!userEmail || !identityId) {
+  //     console.error('userEmail or identityId is missing.');
+  //     return;
+  //   }
+  //   const description = isImageFile(filename) ? imageDescriptions[filename] : nonImageDescriptions[filename];
 
-    try {
-      const response = await client.models.FileDescription.update({
-        userEmail,
-        filePath: filename,
-        fileDescription: description || '',
-        identityId,
-      });
-      console.log(`Description saved:`, response);
-      alert(`Description saved!`);
-    } catch (error) {
-      console.error('Error saving description:', error);
-    }
-  };
+  //     try {
+  //       const response = await client.models.FileDescriptions.update({
+  //         userEmail,
+  //         filePath: filename,
+  //         fileDescription: description || '',
+  //         identityId,
+  //       });
+  //       console.log(`Description saved:`, response);
+  //       alert(`Description saved!`);
+  //     } catch (error) {
+  //       console.error('Error saving description:', error);
+  //     }
+  //   };
 
   const handleDelete = async (filePath: string) => {
     if (!userEmail || !identityId) {
@@ -59,7 +60,7 @@ const FileGallery: React.FC<FileGalleryProps> = ({
     }
     try {
       await remove({ path: filePath });
-      await client.models.FileDescription.delete({ userEmail, filePath });
+      // await client.models.FileDescriptions.delete({ userEmail, filePath });
       setImageFilePaths(prev => prev.filter(f => f !== filePath));
       setNonImageFilePaths(prev => prev.filter(f => f !== filePath));
       setNonImageFileUrls(prev => prev.filter(url => !url.includes(filePath)));
@@ -129,7 +130,7 @@ const FileGallery: React.FC<FileGalleryProps> = ({
             <tr>
               <th>Preview</th>
               <th>Filename</th>
-              <th>File Description</th>
+              {/* <th>File Description</th> */}
               {isDeleteEnabled && <th>Action</th>}
             </tr>
           </thead>
@@ -144,7 +145,8 @@ const FileGallery: React.FC<FileGalleryProps> = ({
                   />
                 </td>
                 <td>{file.split('/').pop()}</td>
-                <td>
+                {/* TODO: add later */}
+                {/* <td>
                   <textarea
                     value={imageDescriptions[file] || ''}
                     onChange={e => handleDescriptionChange(file, e.target.value)}
@@ -154,7 +156,7 @@ const FileGallery: React.FC<FileGalleryProps> = ({
                   <button type="button" onClick={() => handleSubmitDescription(file)}>
                     Submit
                   </button>
-                </td>
+                </td> */}
                 {isDeleteEnabled && (
                   <td>
                     <button
@@ -188,7 +190,7 @@ const FileGallery: React.FC<FileGalleryProps> = ({
             <tr>
               <th>Preview Link</th>
               <th>Filename</th>
-              <th>File Description</th>
+              {/* <th>File Description</th> */}
               {isDeleteEnabled && <th>Action</th>}
             </tr>
           </thead>
@@ -201,6 +203,7 @@ const FileGallery: React.FC<FileGalleryProps> = ({
                   </a>
                 </td>
                 <td>{file.split('/').pop()}</td>
+                {/* TODO: add later
                 <td>
                   <textarea
                     value={nonImageDescriptions[file] || ''}
@@ -211,7 +214,7 @@ const FileGallery: React.FC<FileGalleryProps> = ({
                   <button type="button" onClick={() => handleSubmitDescription(file)}>
                     Submit
                   </button>
-                </td>
+                </td> */}
                 {isDeleteEnabled && (
                   <td>
                     <button

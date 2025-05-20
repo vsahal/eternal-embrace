@@ -97,7 +97,6 @@ function ScheduleMessageForm() {
     }
   }, [editingMessage]);
 
-
   // TODO add file descriptions
   // useEffect(() => {
   //   client.models.FileDescription.observeQuery().subscribe({
@@ -384,7 +383,6 @@ function ScheduleMessageForm() {
         } finally {
           setUploadedLoading(false);
         }
-
       };
 
       loadFiles();

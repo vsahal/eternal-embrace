@@ -69,20 +69,20 @@ const schema = a.schema({
     .secondaryIndexes(index => [index(USER_EMAIL)])
     .authorization(allow => [allow.owner()]), // Ensuring only the owner can access their messages
 
-  // DB for file descriptions
-  FileDescriptions: a
-    .model({
-      id: a.id(),
-      userEmail: a.email().required(),
-      filePath: a.string().required(), // S3 file key
-      fileDescription: a.string().required(),
-      fileType: a.string(), // e.g., "image/jpeg", "application/pdf"
-      identityId: a.string(), // Cognito identity ID
-      fileSize: a.string(), // Size of the file in bytes
-    })
-    .identifier([USER_EMAIL, FILE_PATH])
-    .secondaryIndexes(index => [index(USER_EMAIL)])
-    .authorization(allow => [allow.owner()]), // Ensuring only the owner can access their messages
+  // // DB for file descriptions
+  // FileDescriptions: a
+  //   .model({
+  //     id: a.id(),
+  //     userEmail: a.email().required(),
+  //     filePath: a.string().required(), // S3 file key
+  //     fileDescription: a.string().required(),
+  //     fileType: a.string(), // e.g., "image/jpeg", "application/pdf"
+  //     identityId: a.string(), // Cognito identity ID
+  //     fileSize: a.string(), // Size of the file in bytes
+  //   })
+  //   .identifier([USER_EMAIL, FILE_PATH])
+  //   .secondaryIndexes(index => [index(USER_EMAIL)])
+  //   .authorization(allow => [allow.owner()]), // Ensuring only the owner can access their messages
 });
 
 export type Schema = ClientSchema<typeof schema>;

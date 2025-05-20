@@ -6,7 +6,7 @@ import { generateClient } from 'aws-amplify/data';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import type { Schema } from '../amplify/data/resource';
-import { isImageFile, processFile } from '../utils/utils';
+import { processFile } from '../utils/utils';
 import FileGallery from './FileGallery';
 
 function UploadForm() {
@@ -16,7 +16,7 @@ function UploadForm() {
   const [identityId, setIdentityId] = useState<string | undefined>();
   const [imageDescriptions, setImageDescriptions] = useState<Record<string, string>>({});
   const [nonImageDescriptions, setNonImageDescriptions] = useState<Record<string, string>>({});
-  const [fileDescription, setFileDescription] = useState<Array<Schema['FileDescriptions']['type']>>([]);
+  // const [fileDescription, setFileDescription] = useState<Array<Schema['FileDescriptions']['type']>>([]);
   const client = generateClient<Schema>();
 
   useEffect(() => {
@@ -48,27 +48,28 @@ function UploadForm() {
     fetchIdentity();
   }, [userEmail]);
 
-  useEffect(() => {
-    client.models.FileDescriptions.observeQuery().subscribe({
-      next: data => {
-        setFileDescription([...data.items]);
+  // TODO: add back later
+  // useEffect(() => {
+  //   client.models.FileDescriptions.observeQuery().subscribe({
+  //     next: data => {
+  //       setFileDescription([...data.items]);
 
-        const imageDescription: Record<string, string> = {};
-        const nonImageDescription: Record<string, string> = {};
+  //       const imageDescription: Record<string, string> = {};
+  //       const nonImageDescription: Record<string, string> = {};
 
-        data.items.forEach(item => {
-          if (item.fileType === 'IMAGE') {
-            imageDescription[item.filePath] = item.fileDescription;
-          } else {
-            nonImageDescription[item.filePath] = item.fileDescription;
-          }
-        });
+  //       data.items.forEach(item => {
+  //         if (item.fileType === 'IMAGE') {
+  //           imageDescription[item.filePath] = item.fileDescription;
+  //         } else {
+  //           nonImageDescription[item.filePath] = item.fileDescription;
+  //         }
+  //       });
 
-        setImageDescriptions(imageDescription);
-        setNonImageDescriptions(nonImageDescription);
-      },
-    });
-  }, []);
+  //       setImageDescriptions(imageDescription);
+  //       setNonImageDescriptions(nonImageDescription);
+  //     },
+  //   });
+  // }, []);
 
   return (
     <main style={{ paddingTop: '20px' }}>
@@ -96,18 +97,19 @@ function UploadForm() {
           maxFileCount={10}
           isResumable
           processFile={processFile}
-          onUploadSuccess={({ key }) => {
-            // ensure identityId and userEmail are defined
-            if (!identityId || !userEmail || !key) return;
-            const isImageFileType = isImageFile(key);
-            client.models.FileDescriptions.create({
-              userEmail: userEmail,
-              filePath: key,
-              fileDescription: '',
-              identityId: identityId,
-              fileType: isImageFileType ? 'IMAGE' : 'NON-IMAGE',
-            });
-          }}
+          // TODO add back later
+          // onUploadSuccess={({ key }) => {
+          //   // ensure identityId and userEmail are defined
+          //   if (!identityId || !userEmail || !key) return;
+          //   const isImageFileType = isImageFile(key);
+          //   client.models.FileDescriptions.create({
+          //     userEmail: userEmail,
+          //     filePath: key,
+          //     fileDescription: '',
+          //     identityId: identityId,
+          //     fileType: isImageFileType ? 'IMAGE' : 'NON-IMAGE',
+          //   });
+          // }}
           // ref={ref}
           // TODO: add check for total file size since Amazon SES has a max email size of 40MB
           maxFileSize={5000000} // about 5MB since Amazon SES max email size is 40MB
