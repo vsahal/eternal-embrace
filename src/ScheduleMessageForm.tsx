@@ -13,7 +13,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import type { Schema } from '../amplify/data/resource';
 import { processFile } from '../utils/utils';
 
-// TODO: add file descriptions here as well and DB issue
+
 function ScheduleMessageForm() {
   const { user } = useAuthenticator();
   const navigate = useNavigate();
@@ -39,10 +39,9 @@ function ScheduleMessageForm() {
   const [formattedScheduleDate, setFormattedScheduleDate] = useState<string>('');
   const [anySignificantDates, setAnySignificantDates] = useState<boolean>(false);
   const [significantDates, setSignificantDates] = useState<Array<Schema['SignificantDates']['type']>>([]);
-  // TODO: add file descriptions here as well
-  // const [imageDescriptions, setImageDescriptions] = useState<Record<string, string>>({});
-  // const [nonImageDescriptions, setNonImageDescriptions] = useState<Record<string, string>>({});
-  // const [fileDescription, setFileDescription] = useState<Array<Schema['FileDescription']['type']>>([]);
+  const [imageDescriptions, setImageDescriptions] = useState<Record<string, string>>({});
+  const [nonImageDescriptions, setNonImageDescriptions] = useState<Record<string, string>>({});
+  const [fileDescription, setFileDescription] = useState<Array<Schema['FileDescriptionTable']['type']>>([]);
 
   async function fetchIdentityId() {
     try {
@@ -97,31 +96,31 @@ function ScheduleMessageForm() {
     }
   }, [editingMessage]);
 
-  // TODO add file descriptions
-  // useEffect(() => {
-  //   client.models.FileDescription.observeQuery().subscribe({
-  //     next: data => {
-  //       setFileDescription([...data.items]);
 
-  //       const imageDescription: Record<string, string> = {};
-  //       const nonImageDescription: Record<string, string> = {};
+  useEffect(() => {
+    client.models.FileDescriptionTable.observeQuery().subscribe({
+      next: data => {
+        setFileDescription([...data.items]);
 
-  //       data.items.forEach(item => {
-  //         if (item.fileType === 'IMAGE') {
-  //           imageDescription[item.filePath] = item.fileDescription;
-  //         } else {
-  //           nonImageDescription[item.filePath] = item.fileDescription;
-  //         }
-  //       });
+        const imageDescription: Record<string, string> = {};
+        const nonImageDescription: Record<string, string> = {};
 
-  //       setImageDescriptions(imageDescription);
-  //       setNonImageDescriptions(nonImageDescription);
+        data.items.forEach(item => {
+          if (item.fileType === 'IMAGE') {
+            imageDescription[item.filePath] = item.fileDescription;
+          } else {
+            nonImageDescription[item.filePath] = item.fileDescription;
+          }
+        });
 
-  //       console.log('sahalv Image descriptions:', imageDescription);
-  //       console.log('sahalv Non-image descriptions:', nonImageDescription);
-  //     },
-  //   });
-  // }, []);
+        setImageDescriptions(imageDescription);
+        setNonImageDescriptions(nonImageDescription);
+
+        console.log('sahalv Image descriptions:', imageDescription);
+        console.log('sahalv Non-image descriptions:', nonImageDescription);
+      },
+    });
+  }, []);
 
   const disabledDates = scheduledMessages.map(msg => parse(msg.scheduleDate, 'MM-dd-yyyy', new Date()));
 
@@ -751,8 +750,8 @@ function ScheduleMessageForm() {
               processFile={processFile}
               isResumable
               // ref={ref}
-              // TODO: add check for total file size since email has max size
-              // maxFileSize={7500000} // about 7.5MB since Amazon SES max email size is 40MB
+              // TODO: add check for total file size since email has max size for Mailsend client
+              // maxFileSize={7500000} // 
               displayText={{
                 // some text are plain strings
                 dropFilesText: 'Drop files here or',
