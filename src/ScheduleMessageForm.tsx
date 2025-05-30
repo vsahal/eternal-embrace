@@ -792,7 +792,7 @@ function ScheduleMessageForm() {
         </div>
         {message && (
           <div>
-            <h1>File Browser</h1>
+            <h1>Media Bank</h1>
             <UploadFileGallery />
             <div>
               {/* <button
