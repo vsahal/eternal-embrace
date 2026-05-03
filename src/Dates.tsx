@@ -6,6 +6,7 @@ import DOMPurify from 'dompurify';
 import { useEffect, useState } from 'react';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
+import toast from 'react-hot-toast';
 import { useNavigate } from 'react-router-dom';
 import type { Schema } from '../amplify/data/resource';
 
@@ -73,32 +74,32 @@ function Dates() {
     if (!significantDate || !description) return;
 
     try {
-      const response = await client.models.SignificantDates.create({
+      await client.models.SignificantDates.create({
         userEmail: userEmail,
         significantDate: formattedSignificantDate,
         description: description,
         identityId: identityId,
       });
-      console.log('Significant date saved successfully!', response);
+      toast.success('Date saved successfully!');
 
-      // Reset the form
       setSignificantDate(null);
       setDescription('');
     } catch (err) {
       console.error('Error saving date:', err);
+      toast.error('Failed to save date. Please try again.');
     }
   };
 
   async function handleDelete(userEmail: string, significantDate: string) {
-    console.log(`Deleting DB entry with userEmail: ${userEmail} and significantDate: ${significantDate}`);
     try {
       await client.models.SignificantDates.delete({ userEmail, significantDate });
-      console.log(`Delete successful for userEmail: ${userEmail} and significantDate: ${significantDate}`);
+      toast.success('Date deleted.');
     } catch (error) {
       console.error(
-        `Error deleting message from DB with userEmail: ${userEmail} and scheduleDate: ${significantDate}`,
+        `Error deleting date from DB with userEmail: ${userEmail} and significantDate: ${significantDate}`,
         error
       );
+      toast.error('Failed to delete date. Please try again.');
     }
   }
 

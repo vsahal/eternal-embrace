@@ -2,6 +2,7 @@ import { useAuthenticator } from '@aws-amplify/ui-react';
 import { generateClient } from 'aws-amplify/data';
 import { list, remove } from 'aws-amplify/storage';
 import { useEffect, useState } from 'react';
+import toast from 'react-hot-toast';
 import { useNavigate } from 'react-router-dom';
 import type { Schema } from '../amplify/data/resource';
 import { SCHEDULED, ScheduledMessage, SENT } from './constants';
@@ -22,12 +23,17 @@ function Home() {
     return () => sub.unsubscribe();
   }, []);
 
-  const handleDelete = (message: ScheduledMessage) => {
-    // Call the deleteScheduledMessage function for DB
-    deleteScheduledMessageDB(message.userEmail, message.scheduleDate);
-    // Call the deleteScheduledMessage function for S3
-    deleteScheduledMessageS3(message);
-    setIsConfirmationOpen(false); // Close the confirmation dialog after deletion
+  const handleDelete = async (message: ScheduledMessage) => {
+    setIsConfirmationOpen(false);
+    try {
+      await Promise.all([
+        deleteScheduledMessageDB(message.userEmail, message.scheduleDate),
+        deleteScheduledMessageS3(message),
+      ]);
+      toast.success('Message deleted.');
+    } catch {
+      toast.error('Failed to delete message. Please try again.');
+    }
   };
 
   const openConfirmation = (messageObj: Schema['ScheduledMessage']['type']) => {
@@ -56,19 +62,18 @@ function Home() {
   };
 
   async function deleteScheduledMessageDB(userEmail: string, scheduleDate: string) {
-    console.log(`Deleting DB entry with userEmail: ${userEmail} and scheduleDate: ${scheduleDate}`);
     try {
-      client.models.ScheduledMessage.delete({ userEmail, scheduleDate });
+      await client.models.ScheduledMessage.delete({ userEmail, scheduleDate });
     } catch (error) {
       console.error(
         `Error deleting message from DB with userEmail: ${userEmail} and scheduleDate: ${scheduleDate}`,
         error
       );
+      throw error;
     }
   }
 
   async function deleteScheduledMessageS3(message: ScheduledMessage) {
-    console.log(`Deleting S3 files for ${JSON.stringify(message)}`);
     const filePath = `uploads/${message.identityId}/${message.userEmail}/${message.scheduleDate}/`;
     const allFiles = await list({
       path: filePath,
@@ -79,11 +84,11 @@ function Home() {
       if (allFiles.items && allFiles.items.length > 0) {
         for (const file of allFiles.items) {
           await remove({ path: file.path });
-          console.log(`Deleted: ${file.path}`);
         }
       }
     } catch (error) {
       console.error(`Error deleting S3 files for message ${JSON.stringify(message)}`, error);
+      throw error;
     }
   }
 

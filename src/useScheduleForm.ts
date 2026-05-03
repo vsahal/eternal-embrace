@@ -4,6 +4,7 @@ import { generateClient } from 'aws-amplify/data';
 import { copy } from 'aws-amplify/storage';
 import { format, isValid, parse } from 'date-fns';
 import { ChangeEvent, FormEvent, useEffect, useState } from 'react';
+import toast from 'react-hot-toast';
 import { useLocation, useNavigate } from 'react-router-dom';
 import type { Schema } from '../amplify/data/resource';
 
@@ -122,9 +123,10 @@ export function useScheduleForm() {
         console.log(`Successfully copied ${filePath} to shared bucket.`, response);
       } catch (error) {
         console.error(`Error copying file ${filePath}:`, error);
+        toast.error(`Failed to attach file. Please try again.`);
       }
     }
-    alert('Files uploaded successfully!');
+    toast.success('Files attached successfully!');
     window.location.reload();
   };
 
@@ -133,11 +135,11 @@ export function useScheduleForm() {
     handleSelectedFiles(uploadedSelectedFiles);
 
     if (emailError) {
-      alert('Please fix all errors before submitting.');
+      toast.error('Please fix invalid email addresses before submitting.');
       return;
     }
     if (!userEmail) {
-      alert('User email is required.');
+      toast.error('User email is required.');
       return;
     }
 
@@ -153,7 +155,7 @@ export function useScheduleForm() {
           recipients: recipients.split(',').map(e => e.trim()),
           fileLocation: [`uploads/${sessionIdentityId}/${userEmail}/${formattedScheduleDate}/`],
         });
-        alert('Message updated successfully!');
+        toast.success('Message updated successfully!');
       } else {
         const exists = await checkExistingMessage(formattedScheduleDate);
         if (exists) {
@@ -161,7 +163,7 @@ export function useScheduleForm() {
           return;
         }
         setUniqueDateError('');
-        const response = await client.models.ScheduledMessage.create({
+        await client.models.ScheduledMessage.create({
           userEmail,
           scheduleDate: formattedScheduleDate,
           message,
@@ -170,13 +172,12 @@ export function useScheduleForm() {
           identityId,
           fileLocation: [`uploads/${identityId}/${userEmail}/${formattedScheduleDate}/`],
         });
-        console.log('Item saved to DB', JSON.stringify(response));
-        alert('Message scheduled successfully!');
+        toast.success('Message scheduled successfully!');
       }
       navigate('/home', { replace: true });
     } catch (error) {
       console.error('Error submitting form:', error);
-      alert('An error occurred. Please try again.');
+      toast.error('An error occurred. Please try again.');
     }
   };
 
