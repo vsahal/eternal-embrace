@@ -60,7 +60,6 @@ const ScheduledFileGallery = ({ identityId, userEmail, formattedScheduleDate }: 
       setImageFilePaths(prev => prev.filter(f => f !== filePath));
       setNonImageFilePaths(prev => prev.filter(f => f !== filePath));
       setNonImageFileUrls(prev => prev.filter(url => !url.includes(filePath)));
-      window.location.reload();
     } catch (error) {
       console.error(`Error deleting file: ${filePath}`, error);
     }

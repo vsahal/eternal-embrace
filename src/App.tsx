@@ -8,7 +8,7 @@ import UploadForm from './UploadForm';
 function App() {
   return (
     <BrowserRouter>
-      <Toaster position="top-right" />
+      <Toaster position="top-right" toastOptions={{ duration: 6000 }} />
       <Routes>
         <Route path="*" element={<Home />} />
         <Route path="/schedule" element={<ScheduleMessageForm />} />
