@@ -45,9 +45,10 @@ function Dates() {
   }, [user]);
 
   useEffect(() => {
-    client.models.SignificantDates.observeQuery().subscribe({
+    const sub = client.models.SignificantDates.observeQuery().subscribe({
       next: data => setSignificantDates([...data.items]),
     });
+    return () => sub.unsubscribe();
   }, []);
 
   useEffect(() => {

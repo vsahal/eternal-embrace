@@ -49,7 +49,7 @@ function UploadForm() {
   }, [userEmail]);
 
   useEffect(() => {
-    client.models.FileDescriptionTable.observeQuery().subscribe({
+    const sub = client.models.FileDescriptionTable.observeQuery().subscribe({
       next: data => {
         setFileDescription([...data.items]);
 
@@ -68,6 +68,7 @@ function UploadForm() {
         setNonImageDescriptions(nonImageDescription);
       },
     });
+    return () => sub.unsubscribe();
   }, []);
 
   return (

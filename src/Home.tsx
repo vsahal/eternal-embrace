@@ -16,9 +16,10 @@ function Home() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    client.models.ScheduledMessage.observeQuery().subscribe({
+    const sub = client.models.ScheduledMessage.observeQuery().subscribe({
       next: data => setScheduledMessages([...data.items]),
     });
+    return () => sub.unsubscribe();
   }, []);
 
   const handleDelete = (message: ScheduledMessage) => {
