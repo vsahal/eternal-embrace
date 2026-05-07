@@ -10,10 +10,11 @@ function App() {
     <BrowserRouter>
       <Toaster position="top-right" toastOptions={{ duration: 6000 }} />
       <Routes>
-        <Route path="*" element={<Home />} />
+        <Route path="/" element={<Home />} />
         <Route path="/schedule" element={<ScheduleMessageForm />} />
         <Route path="/upload" element={<UploadForm />} />
         <Route path="/dates" element={<Dates />} />
+        <Route path="*" element={<Home />} />
       </Routes>
     </BrowserRouter>
   );
